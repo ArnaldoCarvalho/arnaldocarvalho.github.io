@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Meu Primeiro Site</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='script.js') }}" defer></script>
+    <link rel="icon" href="{{ url_for('static', filename='nike.png') }}">
+</head>
+<body>
+    <header>
+       <img src="{{ url_for('static', filename='nike.png') }}" alt="Logo do Site" class="logo">
+        <h1>Nike</h1>
+    </header>
+    <main>
+        <h2>Catálogo de Fotos</h2>
+        <div class="catalogo">
+            {% for foto in fotos %}
+            <div class="foto">
+                <img src="{{ url_for('static', filename=foto) }}" alt="Foto {{ loop.index }}">
+            </div>
+            {% endfor %}
+        </div>
+        <p>Este é um site básico criado com Python + Flask.</p>
+        <button onclick="mostrarMensagem()">Clique em mim</button>
+    </main>
+    <footer>
+        <p>&copy; 2025 - Meu Site</p>
+    </footer>
+
+</body>
+</html>
