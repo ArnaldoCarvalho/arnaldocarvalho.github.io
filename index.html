@@ -114,6 +114,7 @@
           <li class="nav-item"><a class="nav-link" href="#analytics">Analytics</a></li>
           <li class="nav-item"><a class="nav-link" href="#sobre">Sobre Nós</a></li>
           <li class="nav-item"><a class="nav-link" href="#contacto">Contacto</a></li>
+          <li class="nav-item"><button class="btn btn-outline-light ms-3" id="logoutBtn">Logout</button></li>
         </ul>
       </div>
     </div>
@@ -441,6 +442,17 @@
   <script src="apriori.js"></script>
   <script src="analytics.js"></script>
   <script>
+    // Check login status on page load
+    console.log('Checking login status:', localStorage.getItem('loggedIn'));
+    // Temporarily disabled for fictional direct access demo
+    // if (localStorage.getItem('loggedIn') !== 'true') {
+    //   console.log('Not logged in, redirecting to login.html');
+    //   window.location.href = 'login.html';
+    // } else {
+    //   console.log('Logged in, staying on page');
+    // }
+    console.log('Direct access enabled for demo');
+
     let currentRecommendation = null;
     let currentRespostas = null;
     let feedbackGiven = false;
@@ -1274,6 +1286,12 @@
           alert('Erro ao enviar recomendação por email. Tente novamente.');
           console.error('Erro:', error);
         });
+    });
+
+    // Logout functionality
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+      localStorage.setItem('loggedIn', 'false');
+      window.location.href = 'login.html';
     });
 
   </script>
