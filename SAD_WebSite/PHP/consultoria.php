@@ -1,0 +1,365 @@
+
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consultoria Auto Premium</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../CSS/consultoria.css">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="../login.html">Consultoria Auto Premium</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item"><a class="nav-link" href="#consultoria">Consultoria</a></li>
+          <li class="nav-item"><a class="nav-link" href="#historico">Histórico</a></li>
+          <li class="nav-item"><a class="nav-link" href="#analytics">Analytics</a></li>
+          <li class="nav-item"><a class="nav-link" href="#sobre">Sobre Nós</a></li>
+          <li class="nav-item"><a class="nav-link" href="#contacto">Contacto</a></li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <img id="currentFlag" src="../img/pt.png" alt="PT" style="width:20px;">
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="languageDropdown">
+              <li><a class="dropdown-item" href="#" data-lang="pt"><img src="../img/pt.png" alt="PT" style="width:20px;"> Português</a></li>
+              <li><a class="dropdown-item" href="#" data-lang="en"><img src="../img/en.png" alt="EN" style="width:20px;"> English</a></li>
+            </ul>
+          </li>
+          <li class="nav-item"><button class="btn btn-outline-light ms-3" id="logoutBtn">Logout</button></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <header class="hero text-center">
+    <div class="container">
+      <h1 class="display-4 fw-bold">Encontre o Melhor Local para seu Stand de Carros</h1>
+      <p class="lead">No Grande Porto, utilizando análise de dados avançada com o método Apriori.</p>
+      <a href="#consultoria" class="btn btn-primary btn-lg mt-3">Iniciar Consultoria</a>
+    </div>
+  </header>
+
+  <!-- Consultoria -->
+  <section id="consultoria" class="">
+    <div class="container">
+      <h2 class="text-center mb-4">Ferramenta de Consultoria com Apriori Inovador</h2>
+      <p class="text-center mb-4">Utilizamos uma versão inovadora do algoritmo Apriori que analisa associações multidimensionais em dados históricos, considerando não apenas combinações simples, mas também pesos dinâmicos baseados em tendências atuais do mercado automóvel no Grande Porto. Responda às perguntas abaixo para receber uma recomendação personalizada.</p>
+      <div class="alert alert-info text-center">
+        <strong>Método Inovador:</strong> Nosso Apriori avançado incorpora machine learning leve para ajustar confianças em tempo real, garantindo recomendações mais precisas e adaptáveis às mudanças econômicas.
+      </div>
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <form id="consultoriaForm">
+            <div class="mb-3">
+              <label for="gama" class="form-label">Tipo de Gama</label>
+              <select class="form-select" id="gama" required>
+                <option value="">Selecione</option>
+                <option value="luxo">Luxo</option>
+                <option value="medio">Médio</option>
+                <option value="economico">Económico</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="orcamento" class="form-label">Orçamento</label>
+              <select class="form-select" id="orcamento" required>
+                <option value="">Selecione</option>
+                <option value="baixo">Baixo</option>
+                <option value="medio">Médio</option>
+                <option value="alto">Alto</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="cliente" class="form-label">Tipo de Cliente Alvo</label>
+              <select class="form-select" id="cliente" required>
+                <option value="">Selecione</option>
+                <option value="familias">Famílias</option>
+                <option value="jovens">Jovens</option>
+                <option value="executivos">Executivos</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="localizacao" class="form-label">Preferência de Localização</label>
+              <select class="form-select" id="localizacao" required>
+                <option value="">Selecione</option>
+                <option value="centro">Centro</option>
+                <option value="subúrbios">Subúrbios</option>
+                <option value="praia">Próximo à Praia</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="localEspecifico" class="form-label">Local Específico (Opcional)</label>
+              <input type="text" class="form-control" id="localEspecifico" list="locaisDisponiveis" placeholder="Ex: Porto Centro, Vila Nova de Gaia, etc.">
+              <datalist id="locaisDisponiveis">
+                <option value="Porto Centro">
+                <option value="Vila Nova de Gaia">
+                <option value="Leça da Palmeira">
+                <option value="Gondomar">
+                <option value="Maia">
+                <option value="Póvoa de Varzim">
+              </datalist>
+              <div class="form-text">Se preferir um local específico, selecione uma das opções disponíveis ou indique outro local. Caso contrário, receberá uma recomendação baseada nos seus critérios.</div>
+            </div>
+
+            <!-- Filtros Avançados -->
+            <div class="mb-3">
+              <button class="btn btn-outline-secondary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#filtrosAvancados" aria-expanded="false" aria-controls="filtrosAvancados">
+                Filtros Avançados <i class="fas fa-chevron-down"></i>
+              </button>
+            </div>
+            <div class="collapse" id="filtrosAvancados">
+              <div class="mb-3">
+                <label for="faixaOrcamento" class="form-label">Faixa de Orçamento (€)</label>
+                <div class="row">
+                  <div class="col-6">
+                    <input type="number" class="form-control" id="orcamentoMin" placeholder="Mínimo" min="0">
+                  </div>
+                  <div class="col-6">
+                    <input type="number" class="form-control" id="orcamentoMax" placeholder="Máximo" min="0">
+                  </div>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="tiposCarro" class="form-label">Tipos de Carro</label>
+                <select class="form-select" id="tiposCarro" multiple>
+                  <option value="sedan">Sedan</option>
+                  <option value="suv">SUV</option>
+                  <option value="hatchback">Hatchback</option>
+                  <option value="coupe">Coupe</option>
+                  <option value="pickup">Pickup</option>
+                  <option value="eletrico">Elétrico</option>
+                </select>
+                <div class="form-text">Selecione múltiplos tipos pressionando Ctrl (ou Cmd no Mac).</div>
+              </div>
+              <div class="mb-3">
+                <label for="faixaEtaria" class="form-label">Faixa Etária do Cliente</label>
+                <select class="form-select" id="faixaEtaria">
+                  <option value="">Selecione</option>
+                  <option value="18-25">18-25 anos</option>
+                  <option value="26-40">26-40 anos</option>
+                  <option value="41-60">41-60 anos</option>
+                  <option value="60+">60+ anos</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="nivelRendimento" class="form-label">Nível de Rendimento</label>
+                <select class="form-select" id="nivelRendimento">
+                  <option value="">Selecione</option>
+                  <option value="baixo">Baixo</option>
+                  <option value="medio">Médio</option>
+                  <option value="alto">Alto</option>
+                </select>
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Gerar Recomendação</button>
+          </form>
+          <div id="resultado" class="d-none">
+            <h2 class="text-center">Recomendação Personalizada</h2>
+            <div class="card shadow-lg">
+              <div class="card-body text-center">
+                <img id="localImage" src="" alt="Local Recomendado" class="img-fluid rounded mb-3" style="max-height: 300px;">
+                <h6 id="recomendacao" class="card-text"></h6>
+                <p id="localDescription" class="text-muted"></p>
+                <img id="map" src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=400&h=300" alt="Mapa do Local Recomendado" style="width: 100%; height: 300px; object-fit: cover; margin-top: 20px;">
+                <div class="mt-3">
+                  <p class="mb-2">Esta recomendação foi útil?</p>
+                  <button type="button" id="thumbsUp" class="btn btn-success me-2"><i class="fas fa-thumbs-up"></i> Sim</button>
+                  <button type="button" id="thumbsDown" class="btn btn-danger"><i class="fas fa-thumbs-down"></i> Não</button>
+                </div>
+                <div class="mt-3">
+                  <button type="button" id="exportBtn" class="btn btn-primary me-2"><i class="fas fa-download"></i> Exportar Relatório</button>
+                  <button type="button" id="shareBtn" class="btn btn-info me-2"><i class="fas fa-share"></i> Compartilhar</button>
+                  <button type="button" id="directionsBtn" class="btn btn-secondary me-2"><i class="fas fa-route"></i> Direções</button>
+                  <button type="button" id="emailRecomendacaoBtn" class="btn btn-warning"><i class="fas fa-envelope"></i> Enviar por Email</button>
+                </div>
+                <div class="mt-3">
+                  <label for="emailRecomendacao" class="form-label">Email para receber recomendação</label>
+                  <input type="email" class="form-control" id="emailRecomendacao" placeholder="seuemail@example.com">
+                </div>
+                <div id="nearbyAmenities" class="mt-3 d-none">
+                  <h6>Comodidades Próximas:</h6>
+                  <div id="amenitiesList" class="row"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Seção de Comparação -->
+          <div id="comparacaoSection" class="mt-5 d-none">
+            <h5 class="text-center mb-4">Comparação de Locais Recomendados</h5>
+            <div id="comparacaoContainer" class="row justify-content-center">
+              <!-- As comparações serão inseridas aqui dinamicamente -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Histórico -->
+  <section id="historico" class="bg-light">
+    <div class="container">
+      <h2 class="text-center mb-4">Histórico de Recomendações</h2>
+      <p class="text-center mb-4">Aqui pode ver todas as recomendações geradas anteriormente, incluindo os critérios utilizados e o feedback dado.</p>
+      <div id="historicoLista" class="row">
+        <!-- As recomendações serão inseridas aqui dinamicamente -->
+      </div>
+      <div class="text-center mt-4">
+        <button id="limparHistorico" class="btn btn-danger">Limpar Histórico</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Analytics -->
+  <section id="analytics" class="">
+    <div class="container">
+      <h2 class="text-center mb-4">Dashboard de Analytics</h2>
+      <p class="text-center mb-4">Análise de dados das recomendações geradas, incluindo estatísticas de sucesso e padrões de utilização.</p>
+      <div id="analyticsContainer">
+        <!-- Os gráficos serão renderizados aqui -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="stats">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-3">
+          <h3>500+</h3>
+          <p>Recomendações Geradas</p>
+        </div>
+        <div class="col-md-3">
+          <h3>95%</h3>
+          <p>Satisfação dos Clientes</p>
+        </div>
+        <div class="col-md-3">
+          <h3>10+</h3>
+          <p>Anos de Experiência</p>
+        </div>
+        <div class="col-md-3">
+          <h3>7</h3>
+          <p>Locais no Grande Porto</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testemunhos -->
+  <section class="bg-light">
+    <div class="container">
+      <h2 class="text-center mb-5">O que Nossos Clientes Dizem</h2>
+      <div class="row">
+        <div class="col-md-4">
+          <div class="testimonial fade-in">
+            <p>"A recomendação da Consultoria Auto Premium foi perfeita! Abri meu stand em Vila Nova de Gaia e o negócio está a prosperar."</p>
+            <cite>- João Silva, Empreendedor</cite>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="testimonial fade-in">
+            <p>"O método Apriori inovador deu-me confiança para investir. Recomendo a todos!"</p>
+            <cite>- Maria Santos, Investidora</cite>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="testimonial fade-in">
+            <p>"Ferramenta incrível e fácil de usar. A análise de dados salvou-me milhares de euros."</p>
+            <cite>- Pedro Costa, Empresário</cite>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Por que Escolher Nós -->
+  <section id="porque">
+    <div class="container">
+      <h2 class="text-center mb-5">Por que Escolher a Consultoria Auto Premium?</h2>
+      <div class="row">
+        <div class="col-md-4 text-center">
+          <i class="fas fa-brain fa-3x text-primary mb-3"></i>
+          <h5>IA Avançada</h5>
+          <p>Utilizamos algoritmos de ponta para analisar tendências e fornecer recomendações precisas.</p>
+        </div>
+        <div class="col-md-4 text-center">
+          <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
+          <h5>Análise de Dados</h5>
+          <p>Baseamos nossas recomendações em dados históricos reais do mercado automóvel.</p>
+        </div>
+        <div class="col-md-4 text-center">
+          <i class="fas fa-users fa-3x text-primary mb-3"></i>
+          <h5>Suporte Personalizado</h5>
+          <p>Oferecemos consultoria personalizada para cada cliente, garantindo o sucesso do seu negócio.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sobre Nós -->
+  <section id="sobre" class="bg-light">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <h2>Sobre Nós</h2>
+          <p>A Consultoria Auto Premium utiliza algoritmos de mineração de dados, como o Apriori, para analisar associações em dados históricos de stands de carros no Grande Porto. Ajudamos empreendedores a escolherem os melhores locais com base em fatores como gama, orçamento e perfil de cliente.</p>
+        </div>
+        <div class="col-md-6">
+          <img src="https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=900&q=80" class="img-fluid rounded" alt="Consultoria">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contacto -->
+  <section id="contacto" class="">
+    <div class="container">
+      <h2 class="text-center mb-4">Entre em Contacto</h2>
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <form id="contactForm">
+            <div class="mb-3">
+              <label for="nome" class="form-label">Nome</label>
+              <input type="text" class="form-control" id="nome" required>
+            </div>
+            <div class="mb-3">
+              <label for="email" class="form-label">Email</label>
+              <input type="email" class="form-control" id="email" required>
+            </div>
+            <div class="mb-3">
+              <label for="mensagem" class="form-label">Mensagem</label>
+              <textarea class="form-control" id="mensagem" rows="4" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Enviar Mensagem</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="text-center">
+    <div class="container">
+      <p class="mb-0">© 2025 Consultoria Auto Premium. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+  <script src="https://cdn.emailjs.com/dist/email.min.js"></script>
+  <script src="../JS/apriori.js"></script>
+  <script src="../JS/analytics.js"></script>
+  <script src="../JS/translations.js"></script>
+  <script src="../JS/consultoria.js"></script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+
+
+CREATE DATABASE consultoria_sad
+
+
+CREATE TABLE recomendacoes (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    local VARCHAR(200) NOT NULL,
+    data DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE criterios (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nome VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE fAvancados (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  orcamento_min INT NULL,
+  orcamento_max INT NULL,
+  tipos_carro VARCHAR(255) NULL,
+  faixa_etaria VARCHAR(50) NULL,
+  nivel_rendimento VARCHAR(50) NULL
+);
+
+CREATE TABLE feedbacks (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    recomendacao_id INT NOT NULL,
+    criterio_id INT NOT NULL,
+    fAvancados_id INT NULL,
+    feedback BOOLEAN NULL,
+    FOREIGN KEY (recomendacao_id) REFERENCES recomendacoes(id),
+    FOREIGN KEY (criterio_id) REFERENCES criterios(id),
+    FOREIGN KEY (fAvancados_id) REFERENCES fAvancados(id)
+);
+
+
