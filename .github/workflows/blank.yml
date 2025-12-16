@@ -19,20 +19,20 @@ jobs:
       - name: Checkout external repo
         uses: actions/checkout@v3
         with:
-          repository: usuario/outro-repositorio   # <--- Coloque o repositório de origem
+          repository: ArnaldoCarvalho/SAD-WebSite # <--- Coloque o repositório de origem
           path: temp-repo                         # Pasta temporária para o repo externo
 
       # Passo 3: Copiar os arquivos da pasta do repo externo para a pasta desejada
       - name: Copy files
         run: |
-          rm -rf pasta/desejada/*   # Limpa a pasta antes de copiar
-          cp -R temp-repo/* pasta/desejada/
+          rm -rf SAD_WebSite/   
+          cp -R temp-repo/* SAD_WebSite/
 
       # Passo 4: Commit e push se houver mudanças
       - name: Commit changes
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git add pasta/desejada
+          git add SAD_WebSite
           git commit -m "Sync from external repo" || echo "No changes to commit"
           git push
