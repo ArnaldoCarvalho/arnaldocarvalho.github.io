@@ -1,0 +1,38 @@
+name: Sync Folder from Another Repo
+
+# Quando o workflow vai rodar
+on:
+  schedule:
+    - cron: '0 0 * * *' # Todos os dias à meia-noite (UTC)
+  workflow_dispatch:      # Permite rodar manualmente pelo GitHub
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Passo 1: Puxar o seu repositório
+      - name: Checkout this repo
+        uses: actions/checkout@v3
+
+      # Passo 2: Puxar o repositório externo
+      - name: Checkout external repo
+        uses: actions/checkout@v3
+        with:
+          repository: ArnaldoCarvalho/SAD-WebSite # <--- Coloque o repositório de origem
+          path: temp-repo                         # Pasta temporária para o repo externo
+
+      # Passo 3: Copiar os arquivos da pasta do repo externo para a pasta desejada
+      - name: Copy files
+        run: |
+          rm -rf SAD_WebSite/   
+          cp -R temp-repo/* SAD_WebSite/
+
+      # Passo 4: Commit e push se houver mudanças
+      - name: Commit changes
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add SAD_WebSite
+          git commit -m "Sync from external repo" || echo "No changes to commit"
+          git push
