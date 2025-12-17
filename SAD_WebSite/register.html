@@ -44,8 +44,8 @@ r
     <h2 class="text-center mb-4">Registar</h2>
     <form id="registerForm">
       <div class="mb-3">
-        <label for="username" class="form-label">Nome de Utilizador</label>
-        <input type="text" class="form-control" id="username" required>
+        <label for="email" class="form-label">Email</label>
+        <input type="email" class="form-control" id="email" required>
       </div>
       <div class="mb-3">
         <label for="password" class="form-label">Palavra-passe</label>
@@ -55,34 +55,14 @@ r
         <label for="confirmPassword" class="form-label">Confirmar Palavra-passe</label>
         <input type="password" class="form-control" id="confirmPassword" required>
       </div>
+      <div id="errorMessage"></div>
       <button type="submit" class="btn btn-primary w-100">Registar</button>
     </form>
-    <p class="text-center mt-3">Já tem conta? <a href="../login.html">Entrar</a></p>
+    <p class="text-center mt-3">Já tem conta? <a href="./login.html">Entrar</a></p>
   </div>
 
-  <script>
-    document.getElementById('registerForm').addEventListener('submit', function (e) {
-      e.preventDefault();
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value.trim();
-      const confirmPassword = document.getElementById('confirmPassword').value.trim();
-
-      if (password !== confirmPassword) {
-        alert('As palavras-passe não coincidem.');
-        return;
-      }
-
-      if (localStorage.getItem(username)) {
-        alert('Nome de utilizador já existe.');
-        return;
-      }
-
-      localStorage.setItem(username, password);
-      console.log('User registered:', username, password);
-      alert('Registo realizado com sucesso! Faça login.');
-      window.location.href = '../login.html';
-    });
-  </script>
+  <!-- Script do registro -->
+  <script type="module" src="./firebase/register.js"></script>
 </body>
 
 </html>

@@ -38,38 +38,19 @@
     <h2 class="text-center mb-4">Login</h2>
     <form id="loginForm">
       <div class="mb-3">
-        <label for="username" class="form-label">Nome de Utilizador</label>
-        <input type="text" class="form-control" id="username" required>
+        <label for="username" class="form-label">Email do Utilizador</label>
+        <input type="text" class="form-control" id="email" required>
       </div>
       <div class="mb-3">
         <label for="password" class="form-label">Palavra-passe</label>
         <input type="password" class="form-control" id="password" required>
       </div>
-      <button type="submit" class="btn btn-primary w-100">Entrar</button>
+      <div id="errorMessage" class="text-danger mb-3" style="display:none;"></div>
+      <button type="submit" id="btnLogin" class="btn btn-primary w-100">Entrar</button>
     </form>
-    <p class="text-center mt-3">Não tem conta? <a href="Pages/register.html">Registar</a></p>
+    <p class="text-center mt-3">Não tem conta? <a href="./register.html">Registar</a></p>
   </div>
 
-  <script>
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value.trim();
-
-      console.log('Login attempt - Username:', username, 'Password:', password);
-
-      if (username === 'user' && password === '1234') {
-        console.log('Login successful');
-        localStorage.setItem('loggedIn', 'true');
-        localStorage.setItem('currentUser', username);
-        console.log('localStorage loggedIn set to:', localStorage.getItem('loggedIn'));
-        console.log('Redirecting to consultoria.php');
-        window.location.href = 'PHP/consultoria.php';
-      } else {
-        console.log('Login failed');
-        alert('Nome de utilizador ou palavra-passe incorretos.');
-      }
-    });
-  </script>
+  <script type="module" src="./firebase/login.js"></script>
 </body>
 </html>

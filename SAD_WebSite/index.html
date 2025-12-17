@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>404 - Página não encontrada</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #333;
+    }
+
+    .container {
+      text-align: center;
+      background: #ffffff;
+      padding: 48px 40px;
+      border-radius: 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+      max-width: 420px;
+      width: 100%;
+      animation: fadeInUp 0.8s ease;
+    }
+
+    h1 {
+      font-size: 80px;
+      margin: 0;
+      color: #764ba2;
+    }
+
+    p {
+      font-size: 17px;
+      margin: 20px 0 32px;
+      line-height: 1.5;
+    }
+
+    a.button {
+      display: inline-block;
+      padding: 14px 28px;
+      background-color: #667eea;
+      color: #ffffff;
+      text-decoration: none;
+      border-radius: 999px;
+      font-weight: 600;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    a.button:hover {
+      background-color: #5a6fdc;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(102, 126, 234, 0.55);
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>404</h1>
+    <p>
+      Ops! A página que procuras não foi encontrada.<br />
+      Se não conseguiste aceder ao website, clica no botão abaixo para seres
+      redirecionado automaticamente para a página principal.
+    </p>
+    <a href="./consultoria.html" class="button">Ir para o website</a>
+  </div>
+  <script type="module" src="./firebase/authGuard.js"></script>
+</body>
+</html>
