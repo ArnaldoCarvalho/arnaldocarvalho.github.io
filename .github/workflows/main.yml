@@ -1,0 +1,37 @@
+name: Sync Folder - AIR-Enterprise
+
+on:
+  schedule:
+    - cron: '0 * * * *' # recomendado no plano gratuito
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v3
+
+      - name: Checkout external repo
+        uses: actions/checkout@v3
+        with:
+          repository: ArnaldoCarvalho/AIR-Enterprise
+          path: temp-repo
+
+      - name: Copy files
+        run: |
+          mkdir -p AIR-Enterprise
+          rm -rf AIR-Enterprise/*
+          cp -R temp-repo/* AIR-Enterprise/
+
+      - name: Commit changes
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add AIR-Enterprise
+          git commit -m "Sync from external repo" || echo "No changes to commit"
+          git push
