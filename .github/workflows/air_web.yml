@@ -24,14 +24,14 @@ jobs:
 
       - name: Copy files
         run: |
-          mkdir -p AIR-Enterprise
-          rm -rf AIR-Enterprise/*
-          cp -R temp-repo/* AIR-Enterprise/
+          mkdir -p AIR
+          rm -rf AIR/*
+          cp -R temp-repo/* AIR/
 
       - name: Commit changes
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git add AIR-Enterprise
+          git add AIR
           git commit -m "Sync from external repo" || echo "No changes to commit"
           git push
