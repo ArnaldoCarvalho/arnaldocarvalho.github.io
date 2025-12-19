@@ -1,4 +1,4 @@
-name: Sync Folder from Another Repo
+name: Sync Folder - SAD-WebSite
 
 on:
   schedule:
