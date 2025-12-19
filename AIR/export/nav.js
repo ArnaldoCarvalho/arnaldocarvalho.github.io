@@ -1,0 +1,18 @@
+document.getElementById('navbar').innerHTML =
+    '<div class="container">'
+        +'<a class="navbar-brand fw-bold" href="./">AIR</a>'
+        +'<button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#menu">'
+            +'<span class="navbar-toggler-icon"></span>'
+        +'</button>'
+        +'<div id="menu" class="collapse navbar-collapse">'
+            +'<ul class="navbar-nav ms-auto mb-2 mb-lg-0">'
+                +'<li class="nav-item"><a class="nav-link" href="#sobre">Sobre</a></li>'
+                +'<li class="nav-item"><a class="nav-link" href="#servicos">Serviços</a></li>'
+                +'<li class="nav-item"><a class="nav-link" href="#contato">Contato</a></li>'
+                +'<li class="nav-item"><a class="nav-link" href="/dashboard/">Dashboard</a></li>'
+                +'<li class="nav-item">'
+                    +'<a class="btn btn-outline-light ms-lg-3" href="login.html">Login</a>'
+                +'</li>'
+            +'</ul>'
+        +'</div>'
+    +'</div>';

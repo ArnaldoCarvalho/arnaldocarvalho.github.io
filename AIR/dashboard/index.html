@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>AIR | Dashboard</title>
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .sidebar {
+            min-height: 100vh;
+            background: #0d1117;
+        }
+        .sidebar a {
+            color: #c9d1d9;
+            text-decoration: none;
+            display: block;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+        }
+        .sidebar a:hover {
+            background: #161b22;
+            color: #fff;
+        }
+        .card {
+            border: none;
+            border-radius: 16px;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body class="bg-light">    
+    <script type="module" src="../js/auth-guard.js"></script>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <aside class="col-md-2 sidebar p-3">
+                <h4 class="text-white mb-4">AIR</h4>
+                <a href="#">📊 Dashboard</a>
+                <a href="projetos.html">📁 Projetos</a>
+                <a href="#">👥 Clientes</a>
+                <a href="#">⚙️ Serviços</a>
+                <a href="#">👤 Perfil</a>
+                <hr class="text-secondary">
+                <button class="btn btn-outline-light w-100 mt-2" onclick="logout()"> Logout</button>
+            </aside>
+
+            <!-- Main -->
+            <main class="col-md-10 p-4">
+                <h2 class="mb-1">Dashboard</h2>
+                <p class="text-muted">
+                    Bem-vindo à AIR — desenvolvimento de aplicações web e mobile
+                </p>
+                <!-- Cards -->
+                <div class="row g-4 mt-4">
+                    <div class="col-md-4">
+                        <div class="card shadow-sm p-4">
+                            <h6 class="text-muted">Projetos Ativos</h6>
+                            <div class="stat-number">12</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card shadow-sm p-4">
+                            <h6 class="text-muted">Clientes</h6>
+                            <div class="stat-number">7</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card shadow-sm p-4">
+                            <h6 class="text-muted">Serviços</h6>
+                            <div class="stat-number">5</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section -->
+                <div class="mt-5">
+                    <h4>Sobre a AIR</h4>
+                    <p class="text-muted">
+                        A AIR é uma empresa focada no desenvolvimento de aplicações modernas,
+                        escaláveis e seguras. Atuamos com soluções web, mobile e APIs
+                        personalizadas para negócios de todos os tamanhos.
+                    </p>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module">
+        import { auth } from "../firebase/firebase.js";
+        import { signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+        window.logout = function () {
+            signOut(auth)
+                .then(() => {
+                    window.location.replace("../login.html");
+                })
+                .catch(error => {
+                    alert(error.message);
+                });
+        };
+    </script>
+</body>
+
+</html>
