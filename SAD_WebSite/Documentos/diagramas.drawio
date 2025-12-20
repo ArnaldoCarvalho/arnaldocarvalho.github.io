@@ -1,0 +1,215 @@
+<mxfile host="65bd71144e">
+    <diagram id="D_UseCase" name="Use Cases">
+        <mxGraphModel dx="774" dy="799" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="actor_user" value="Utilizador/Gestor" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" parent="1" vertex="1">
+                    <mxGeometry x="120" y="240" width="30" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="uc_auth" value="Autenticar-se" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="320" y="100" width="140" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="uc_manual" value="Introduzir Modelos&#10;Manualmente" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="320" y="190" width="140" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="uc_import" value="Importar BD&#10;em Massa" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="320" y="280" width="140" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="uc_sim" value="Realizar Simulação&#10;(Apriori)" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="320" y="370" width="140" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="uc_export" value="Exportar Resultados" style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="320" y="460" width="140" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge1" parent="1" source="actor_user" target="uc_auth" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="160" y="260" as="sourcePoint"/>
+                        <mxPoint x="310" y="150" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="edge2" parent="1" source="actor_user" target="uc_manual" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="160" y="270" as="sourcePoint"/>
+                        <mxPoint x="310" y="230" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="edge3" parent="1" source="actor_user" target="uc_import" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="160" y="280" as="sourcePoint"/>
+                        <mxPoint x="310" y="310" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="edge4" parent="1" source="actor_user" target="uc_sim" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="160" y="290" as="sourcePoint"/>
+                        <mxPoint x="310" y="400" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="edge5" parent="1" source="actor_user" target="uc_export" edge="1">
+                    <mxGeometry width="50" height="50" relative="1" as="geometry">
+                        <mxPoint x="160" y="300" as="sourcePoint"/>
+                        <mxPoint x="310" y="490" as="targetPoint"/>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="desc_box" value="Diagrama de Casos de Utilização - SAD WebSite&#10;Este diagrama ilustra as principais funcionalidades interativas&#10;do sistema, focando na gestão de dados e execução de simulações&#10;pelo utilizador/gestor." style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;fillColor=#fff2cc;strokeColor=#d6b656;align=left;spacingLeft=10;" parent="1" vertex="1">
+                    <mxGeometry x="540" y="100" width="250" height="150" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+    <diagram id="D_Sequence" name="Sequence Diagram">
+        <mxGraphModel dx="774" dy="799" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="s_0"/>
+                <mxCell id="s_1" parent="s_0"/>
+                <mxCell id="browser" value="Browser (Cliente)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;" parent="s_1" vertex="1">
+                    <mxGeometry x="80" y="80" width="120" height="400" as="geometry"/>
+                </mxCell>
+                <mxCell id="api" value="API (PHP)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;" parent="s_1" vertex="1">
+                    <mxGeometry x="280" y="80" width="120" height="400" as="geometry"/>
+                </mxCell>
+                <mxCell id="db" value="Base de Dados" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;" parent="s_1" vertex="1">
+                    <mxGeometry x="480" y="80" width="120" height="400" as="geometry"/>
+                </mxCell>
+                <mxCell id="algo" value="Algoritmo (Apriori)" style="shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;html=1;container=1;collapsible=0;recursiveResize=0;outlineConnect=0;" parent="s_1" vertex="1">
+                    <mxGeometry x="680" y="80" width="120" height="400" as="geometry"/>
+                </mxCell>
+                <mxCell id="msg1" value="1. Pedido de Simulação (Dados)" style="html=1;verticalAlign=bottom;endArrow=block;entryX=0;entryY=0;" parent="s_1" source="browser" target="api" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="140" y="160" as="sourcePoint"/>
+                        <mxPoint x="340" y="160" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="200" y="160"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="msg2" value="2. Buscar Transações" style="html=1;verticalAlign=bottom;endArrow=block;" parent="s_1" source="api" target="db" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="340" y="200" as="sourcePoint"/>
+                        <mxPoint x="540" y="200" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="400" y="200"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="msg3" value="3. Retornar Dados" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" parent="s_1" source="db" target="api" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="540" y="240" as="sourcePoint"/>
+                        <mxPoint x="340" y="240" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="480" y="240"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="msg4" value="4. Processar (Apriori)" style="html=1;verticalAlign=bottom;endArrow=block;" parent="s_1" source="api" target="algo" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="340" y="280" as="sourcePoint"/>
+                        <mxPoint x="740" y="280" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="460" y="280"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="msg5" value="5. Resultados" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" parent="s_1" source="algo" target="api" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="740" y="320" as="sourcePoint"/>
+                        <mxPoint x="340" y="320" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="600" y="320"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="msg6" value="6. JSON Response (Resultados)" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;" parent="s_1" source="api" target="browser" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="340" y="360" as="sourcePoint"/>
+                        <mxPoint x="140" y="360" as="targetPoint"/>
+                        <Array as="points">
+                            <mxPoint x="280" y="360"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+    <diagram id="D_Activity" name="Activity Diagram">
+        <mxGraphModel dx="774" dy="799" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+            <root>
+                <mxCell id="a_0"/>
+                <mxCell id="a_1" parent="a_0"/>
+                <mxCell id="start" value="" style="ellipse;html=1;shape=startState;fillColor=#000000;strokeColor=#ff0000;" parent="a_1" vertex="1">
+                    <mxGeometry x="385" y="40" width="30" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_start" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;verticalAlign=bottom;endArrow=open;endSize=8;strokeColor=#ff0000;" parent="a_1" source="start" target="dec_login" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="dec_login" value="Autenticado?" style="rhombus;whiteSpace=wrap;html=1;" parent="a_1" vertex="1">
+                    <mxGeometry x="360" y="110" width="80" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_login" value="Fazer Login" style="rounded=1;whiteSpace=wrap;html=1;" parent="a_1" vertex="1">
+                    <mxGeometry x="520" y="120" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_fill" value="Preencher Formulário&#10;(Requisitos)" style="rounded=1;whiteSpace=wrap;html=1;" parent="a_1" vertex="1">
+                    <mxGeometry x="340" y="240" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_validate" value="Validar Dados" style="rounded=1;whiteSpace=wrap;html=1;" parent="a_1" vertex="1">
+                    <mxGeometry x="340" y="340" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="dec_valid" value="Válido?" style="rhombus;whiteSpace=wrap;html=1;" parent="a_1" vertex="1">
+                    <mxGeometry x="360" y="440" width="80" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_error" value="Mostrar Erro" style="rounded=1;whiteSpace=wrap;html=1;" parent="a_1" vertex="1">
+                    <mxGeometry x="520" y="450" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_sim" value="Executar Simulação" style="rounded=1;whiteSpace=wrap;html=1;" parent="a_1" vertex="1">
+                    <mxGeometry x="340" y="560" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="act_view" value="Visualizar Resultados" style="rounded=1;whiteSpace=wrap;html=1;" parent="a_1" vertex="1">
+                    <mxGeometry x="340" y="660" width="120" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="end" value="" style="ellipse;html=1;shape=endState;fillColor=#000000;strokeColor=#ff0000;" parent="a_1" vertex="1">
+                    <mxGeometry x="385" y="760" width="30" height="30" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn_no_auth" value="Não" style="edgeStyle=orthogonalEdgeStyle;html=1;align=left;verticalAlign=bottom;endArrow=open;endSize=8;strokeColor=#ff0000;" parent="a_1" source="dec_login" target="act_login" edge="1">
+                    <mxGeometry x="-1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn_login_return" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;verticalAlign=bottom;endArrow=open;endSize=8;strokeColor=#ff0000;entryX=0.5;entryY=0;" parent="a_1" source="act_login" target="dec_login" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="580" y="90"/>
+                            <mxPoint x="400" y="90"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn_yes_auth" value="Sim" style="edgeStyle=orthogonalEdgeStyle;html=1;align=left;verticalAlign=top;endArrow=open;endSize=8;strokeColor=#ff0000;" parent="a_1" source="dec_login" target="act_fill" edge="1">
+                    <mxGeometry x="-1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn_fill_val" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;verticalAlign=bottom;endArrow=open;endSize=8;strokeColor=#ff0000;" parent="a_1" source="act_fill" target="act_validate" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn_val_dec" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;verticalAlign=bottom;endArrow=open;endSize=8;strokeColor=#ff0000;" parent="a_1" source="act_validate" target="dec_valid" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn_invalid" value="Não" style="edgeStyle=orthogonalEdgeStyle;html=1;align=left;verticalAlign=bottom;endArrow=open;endSize=8;strokeColor=#ff0000;" parent="a_1" source="dec_valid" target="act_error" edge="1">
+                    <mxGeometry x="-1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn_error_retry" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;verticalAlign=bottom;endArrow=open;endSize=8;strokeColor=#ff0000;entryX=1;entryY=0.5;" parent="a_1" source="act_error" target="act_fill" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="580" y="270"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="conn_valid" value="Sim" style="edgeStyle=orthogonalEdgeStyle;html=1;align=left;verticalAlign=top;endArrow=open;endSize=8;strokeColor=#ff0000;" parent="a_1" source="dec_valid" target="act_sim" edge="1">
+                    <mxGeometry x="-1" relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn_sim_view" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;verticalAlign=bottom;endArrow=open;endSize=8;strokeColor=#ff0000;" parent="a_1" source="act_sim" target="act_view" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="conn_view_end" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;verticalAlign=bottom;endArrow=open;endSize=8;strokeColor=#ff0000;" parent="a_1" source="act_view" target="end" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
