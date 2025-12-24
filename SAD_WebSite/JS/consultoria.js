@@ -1,6 +1,6 @@
 // Firebase imports
-import { collection, addDoc, getDocs, doc, updateDoc, query, orderBy, where, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-import { db } from '../firebase/firebase.js';
+import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy, where, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { db, auth } from '../firebase/firebase.js';
 
 // Check login status on page load
 //console.log('Checking login status:', localStorage.getItem('loggedIn'));
@@ -14,6 +14,7 @@ import { db } from '../firebase/firebase.js';
 //console.log('Direct access enabled for demo');
 import { translations, setLanguage, currentLanguage } from './translations.js';
 import { gerarRecomendacao } from './apriori.js';
+import { getAllTransactions, saveTransaction } from '../firebase/firestore.js';
 
 let currentRecommendation = null;
 let currentRecommendationId = null; // guarda id recomendacao
@@ -63,13 +64,20 @@ async function loadHistorico(showAll = false) {
   const historicoLista = document.getElementById('historicoLista');
   historicoLista.innerHTML = '';
 
+  if (!auth.currentUser) {
+    historicoLista.innerHTML = '<div class="col-12 text-center"><p class="text-muted">Please log in to view your recommendation history.</p></div>';
+    return;
+  }
+
   try {
-    const q = query(collection(db, 'recommendations'), orderBy('data', 'desc'));
+    const q = query(collection(db, 'recommendations'), where('userId', '==', auth.currentUser.uid));
     const querySnapshot = await getDocs(q);
     const historico = [];
     querySnapshot.forEach((doc) => {
       historico.push({ id: doc.id, ...doc.data() });
     });
+    // Sort by data descending client-side
+    historico.sort((a, b) => b.data.seconds - a.data.seconds);
 
     if (historico.length === 0) {
       historicoLista.innerHTML = '<div class="col-12 text-center"><p class="text-muted">' + translations[currentLanguage].noRecommendations + '</p></div>';
@@ -135,14 +143,25 @@ async function loadHistorico(showAll = false) {
   }
 }
 
-// Limpar histórico (nao funciona BD, deve limpar apenas do utilizador atual)
-document.getElementById('limparHistorico').addEventListener('click', function () {
-  /*const t = translations[currentLanguage];
+// Limpar histórico
+document.getElementById('limparHistorico').addEventListener('click', async function () {
+  const t = translations[currentLanguage];
   if (confirm(t.confirmClearHistory)) {
-    localStorage.removeItem('historicoRecomendacoes');
-    loadHistorico();
-    alert(t.historyCleared);
-  }*/
+    try {
+      const q = query(collection(db, 'recommendations'), where('userId', '==', auth.currentUser.uid));
+      const querySnapshot = await getDocs(q);
+      const deletePromises = [];
+      querySnapshot.forEach((doc) => {
+        deletePromises.push(deleteDoc(doc.ref));
+      });
+      await Promise.all(deletePromises);
+      loadHistorico();
+      alert(t.historyCleared);
+    } catch (error) {
+      console.error('Erro ao limpar histórico:', error);
+      alert('Erro ao limpar histórico.');
+    }
+  }
 });
 
 // Salvar dados aprendidos no localStorage
@@ -251,6 +270,18 @@ document.getElementById('directionsBtn').addEventListener('click', function () {
 
 document.getElementById('consultoriaForm').addEventListener('submit', async function (e) {
   e.preventDefault();
+
+  // Show loading indicator
+  const loadingIndicator = document.createElement('div');
+  loadingIndicator.id = 'loadingIndicator';
+  loadingIndicator.className = 'text-center my-3';
+  loadingIndicator.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div><p>Gerando recomendação...</p>';
+  document.getElementById('consultoriaForm').appendChild(loadingIndicator);
+
+  // Disable submit button
+  const submitBtn = document.querySelector('#consultoriaForm button[type="submit"]');
+  submitBtn.disabled = true;
+
   const gama = document.getElementById('gama').value;
   const orcamento = document.getElementById('orcamento').value;
   const cliente = document.getElementById('cliente').value;
@@ -273,21 +304,25 @@ document.getElementById('consultoriaForm').addEventListener('submit', async func
     nivelRendimento: nivelRendimento
   };
 
-  // Dados de transações simulados (associações históricas)
-  const transactions = [
-    ['luxo', 'alto', 'executivos', 'centro', 'Porto Centro'],
-    ['luxo', 'alto', 'executivos', 'centro', 'Porto Centro'],
-    ['medio', 'medio', 'familias', 'subúrbios', 'Vila Nova de Gaia'],
-    ['medio', 'medio', 'familias', 'subúrbios', 'Vila Nova de Gaia'],
-    ['economico', 'baixo', 'jovens', 'praia', 'Leça da Palmeira'],
-    ['economico', 'baixo', 'jovens', 'praia', 'Leça da Palmeira'],
-    ['luxo', 'alto', 'executivos', 'centro', 'Porto Centro'],
-    ['medio', 'medio', 'jovens', 'centro', 'Porto Centro'],
-    ['economico', 'baixo', 'familias', 'subúrbios', 'Gondomar'],
-    ['luxo', 'medio', 'familias', 'subúrbios', 'Maia'],
-    ['medio', 'alto', 'executivos', 'centro', 'Porto Centro'],
-    ['economico', 'medio', 'jovens', 'praia', 'Póvoa de Varzim']
-  ];
+  // Fetch transactions from Firebase
+  let transactions = await getAllTransactions();
+  // If no transactions in Firebase, use default ones
+  if (transactions.length === 0) {
+    transactions = [
+      ['luxo', 'alto', 'executivos', 'centro', 'Porto Centro'],
+      ['luxo', 'alto', 'executivos', 'centro', 'Porto Centro'],
+      ['medio', 'medio', 'familias', 'subúrbios', 'Vila Nova de Gaia'],
+      ['medio', 'medio', 'familias', 'subúrbios', 'Vila Nova de Gaia'],
+      ['economico', 'baixo', 'jovens', 'praia', 'Leça da Palmeira'],
+      ['economico', 'baixo', 'jovens', 'praia', 'Leça da Palmeira'],
+      ['luxo', 'alto', 'executivos', 'centro', 'Porto Centro'],
+      ['medio', 'medio', 'jovens', 'centro', 'Porto Centro'],
+      ['economico', 'baixo', 'familias', 'subúrbios', 'Gondomar'],
+      ['luxo', 'medio', 'familias', 'subúrbios', 'Maia'],
+      ['medio', 'alto', 'executivos', 'centro', 'Porto Centro'],
+      ['economico', 'medio', 'jovens', 'praia', 'Póvoa de Varzim']
+    ];
+  }
 
   let melhorRegra;
   let recomendacaoTexto;
@@ -343,8 +378,17 @@ document.getElementById('consultoriaForm').addEventListener('submit', async func
     }
   } else {
     // Usar recomendação baseada no Apriori
-    melhorRegra = gerarRecomendacao(transactions, respostas, filtrosAvancados, 0.5, 0.7); // minSupport 50%, minConfidence 70%
+    melhorRegra = await gerarRecomendacao(transactions, respostas, filtrosAvancados, 0.5, 0.7); // minSupport 50%, minConfidence 70%
   }
+
+  // Update the transaction with the recommended location
+  await saveTransaction([...respostas, melhorRegra.consequente]);
+
+  // Remove loading indicator and re-enable submit button
+  if (loadingIndicator) {
+    loadingIndicator.remove();
+  }
+  submitBtn.disabled = false;
 
   document.getElementById('recomendacao').textContent = melhorRegra.recomendacao;
   document.getElementById('resultado').classList.remove('d-none');
@@ -391,6 +435,7 @@ document.getElementById('consultoriaForm').addEventListener('submit', async func
   // Save recommendation and criteria to Firebase with feedback null
   try {
     const docRef = await addDoc(collection(db, 'recommendations'), {
+      userId: auth.currentUser.uid,
       local: melhorRegra.consequente,
       criterios: respostas,
       advancedFilters: filtrosAvancados,

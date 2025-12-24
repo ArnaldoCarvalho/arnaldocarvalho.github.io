@@ -1,5 +1,14 @@
 // Implementação inovadora do algoritmo Apriori com machine learning leve para recomendações
-// Inclui integração com dados de mercado em tempo real
+// Inclui integração com dados de mercado em tempo real e Firebase Firestore
+
+import {
+  saveTransaction,
+  getAllTransactions,
+  saveFrequentItemsets,
+  getFrequentItemsets,
+  saveAssociationRules,
+  getAssociationRules
+} from '../firebase/firestore.js';
 
 // Mock API para dados de mercado em tempo real
 async function fetchMarketData() {
@@ -34,7 +43,13 @@ async function fetchMarketData() {
   });
 }
 
-export function gerarRecomendacao(transactions, respostas, filtrosAvancados, minSupport, minConfidence) {
+export async function gerarRecomendacao(transactions, respostas, filtrosAvancados, minSupport, minConfidence) {
+  // Save the current transaction to Firebase
+  await saveTransaction([...respostas, '']); // We'll update the location later
+
+  // Fetch market data for real-time trends
+  const marketData = await fetchMarketData();
+
   // Passo 1: Calcular suporte para itens individuais
   const itemCounts = {};
   transactions.forEach(transaction => {
@@ -55,40 +70,47 @@ export function gerarRecomendacao(transactions, respostas, filtrosAvancados, min
 
   // Inovação: Ajuste dinâmico de confiança baseado em tendências simuladas (machine learning leve)
   // Agora integrado com dados de mercado em tempo real
-  const tendenciasAtuais = {
-    'luxo': 1.1, // Aumento de 10% na demanda por luxo devido a economia
-    'economico': 0.9, // Diminuição de 10% devido a inflação
-    'centro': 1.05, // Aumento devido a turismo pós-pandemia
-    'praia': 1.08, // Aumento devido a procura por lazer
-    'executivos': 1.02,
-    'jovens': 0.98,
-    'familias': 1.03
+  const tendenciasAtuais = marketData.trends;
+
+  // Dados dos locais para adicionar às regras
+  const locationData = {
+    'Porto Centro': { image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80', description: 'Centro histórico do Porto, ideal para stands de luxo com alta visibilidade.', lat: 41.1579, lng: -8.6291, orcamentoMin: 100000, orcamentoMax: 500000, tiposCarro: ['sedan', 'coupe'], faixaEtaria: '41-60', nivelRendimento: 'alto' },
+    'Vila Nova de Gaia': { image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80', description: 'Subúrbio familiar com acesso fácil ao Porto, perfeito para famílias.', lat: 41.1333, lng: -8.6167, orcamentoMin: 50000, orcamentoMax: 150000, tiposCarro: ['suv', 'hatchback'], faixaEtaria: '26-40', nivelRendimento: 'medio' },
+    'Leça da Palmeira': { image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80', description: 'Área costeira vibrante, atrativa para jovens e turismo.', lat: 41.1917, lng: -8.7000, orcamentoMin: 20000, orcamentoMax: 60000, tiposCarro: ['hatchback', 'eletrico'], faixaEtaria: '18-25', nivelRendimento: 'baixo' },
+    'Gondomar': { image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80', description: 'Área residencial acessível, ideal para famílias com orçamento limitado.', lat: 41.1500, lng: -8.5333, orcamentoMin: 25000, orcamentoMax: 70000, tiposCarro: ['hatchback', 'suv'], faixaEtaria: '26-40', nivelRendimento: 'baixo' },
+    'Maia': { image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80', description: 'Subúrbio moderno com boas infraestruturas familiares.', lat: 41.2333, lng: -8.6167, orcamentoMin: 60000, orcamentoMax: 180000, tiposCarro: ['suv', 'sedan'], faixaEtaria: '26-40', nivelRendimento: 'medio' },
+    'Póvoa de Varzim': { image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80', description: 'Costa norte com praias e vida noturna, atrativa para jovens.', lat: 41.3833, lng: -8.7667, orcamentoMin: 30000, orcamentoMax: 80000, tiposCarro: ['hatchback', 'coupe'], faixaEtaria: '18-25', nivelRendimento: 'medio' }
   };
 
-  // Passo 2: Gerar regras de associação com ajuste inovador
-  // Filtrar regras baseadas em filtros avançados
-  const orcamentoLevels = { 'baixo': 25000, 'medio': 75000, 'alto': 150000 };
-  let regras = [
-    { antecedente: ['luxo', 'alto', 'executivos'], consequente: 'Porto Centro', confidence: 0.8, image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80', description: 'Centro histórico do Porto, ideal para stands de luxo com alta visibilidade.', lat: 41.1579, lng: -8.6291, orcamentoMin: 100000, orcamentoMax: 500000, tiposCarro: ['sedan', 'coupe'], faixaEtaria: '41-60', nivelRendimento: 'alto' },
-    { antecedente: ['medio', 'medio', 'familias'], consequente: 'Vila Nova de Gaia', confidence: 0.75, image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80', description: 'Subúrbio familiar com acesso fácil ao Porto, perfeito para famílias.', lat: 41.1333, lng: -8.6167, orcamentoMin: 50000, orcamentoMax: 150000, tiposCarro: ['suv', 'hatchback'], faixaEtaria: '26-40', nivelRendimento: 'medio' },
-    { antecedente: ['economico', 'baixo', 'jovens'], consequente: 'Leça da Palmeira', confidence: 0.7, image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80', description: 'Área costeira vibrante, atrativa para jovens e turismo.', lat: 41.1917, lng: -8.7000, orcamentoMin: 20000, orcamentoMax: 60000, tiposCarro: ['hatchback', 'eletrico'], faixaEtaria: '18-25', nivelRendimento: 'baixo' },
-    { antecedente: ['luxo', 'alto', 'centro'], consequente: 'Porto Centro', confidence: 0.85, image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80', description: 'Centro histórico do Porto, ideal para stands de luxo com alta visibilidade.', lat: 41.1579, lng: -8.6291, orcamentoMin: 100000, orcamentoMax: 500000, tiposCarro: ['sedan', 'coupe'], faixaEtaria: '41-60', nivelRendimento: 'alto' },
-    { antecedente: ['medio', 'medio', 'subúrbios'], consequente: 'Vila Nova de Gaia', confidence: 0.8, image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80', description: 'Subúrbio familiar com acesso fácil ao Porto, perfeito para famílias.', lat: 41.1333, lng: -8.6167, orcamentoMin: 50000, orcamentoMax: 150000, tiposCarro: ['suv', 'hatchback'], faixaEtaria: '26-40', nivelRendimento: 'medio' },
-    { antecedente: ['economico', 'baixo', 'praia'], consequente: 'Leça da Palmeira', confidence: 0.75, image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80', description: 'Área costeira vibrante, atrativa para jovens e turismo.', lat: 41.1917, lng: -8.7000, orcamentoMin: 20000, orcamentoMax: 60000, tiposCarro: ['hatchback', 'eletrico'], faixaEtaria: '18-25', nivelRendimento: 'baixo' },
-    { antecedente: ['medio', 'alto', 'executivos'], consequente: 'Porto Centro', confidence: 0.7, image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80', description: 'Centro histórico do Porto, ideal para stands de luxo com alta visibilidade.', lat: 41.1579, lng: -8.6291, orcamentoMin: 75000, orcamentoMax: 200000, tiposCarro: ['sedan', 'suv'], faixaEtaria: '41-60', nivelRendimento: 'alto' },
-    { antecedente: ['economico', 'medio', 'jovens'], consequente: 'Póvoa de Varzim', confidence: 0.65, image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80', description: 'Costa norte com praias e vida noturna, atrativa para jovens.', lat: 41.3833, lng: -8.7667, orcamentoMin: 30000, orcamentoMax: 80000, tiposCarro: ['hatchback', 'coupe'], faixaEtaria: '18-25', nivelRendimento: 'medio' },
-    { antecedente: ['luxo', 'medio', 'familias'], consequente: 'Maia', confidence: 0.6, image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80', description: 'Subúrbio moderno com boas infraestruturas familiares.', lat: 41.2333, lng: -8.6167, orcamentoMin: 60000, orcamentoMax: 180000, tiposCarro: ['suv', 'sedan'], faixaEtaria: '26-40', nivelRendimento: 'medio' },
-    { antecedente: ['economico', 'baixo', 'familias'], consequente: 'Gondomar', confidence: 0.55, image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80', description: 'Área residencial acessível, ideal para famílias com orçamento limitado.', lat: 41.1500, lng: -8.5333, orcamentoMin: 25000, orcamentoMax: 70000, tiposCarro: ['hatchback', 'suv'], faixaEtaria: '26-40', nivelRendimento: 'baixo' },
-    // Regras adicionais para cobrir mais combinações
-    { antecedente: ['medio', 'baixo', 'jovens', 'praia'], consequente: 'Leça da Palmeira', confidence: 0.72, image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80', description: 'Praia acessível para jovens com orçamento médio-baixo.', lat: 41.1917, lng: -8.7000, orcamentoMin: 25000, orcamentoMax: 75000, tiposCarro: ['hatchback', 'eletrico'], faixaEtaria: '18-25', nivelRendimento: 'baixo' },
-    { antecedente: ['economico', 'alto', 'familias', 'subúrbios'], consequente: 'Gondomar', confidence: 0.58, image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80', description: 'Subúrbio acessível para famílias com orçamento económico.', lat: 41.1500, lng: -8.5333, orcamentoMin: 40000, orcamentoMax: 120000, tiposCarro: ['suv', 'hatchback'], faixaEtaria: '26-40', nivelRendimento: 'medio' },
-    { antecedente: ['luxo', 'medio', 'jovens', 'centro'], consequente: 'Porto Centro', confidence: 0.78, image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80', description: 'Centro para jovens com preferência por luxo acessível.', lat: 41.1579, lng: -8.6291, orcamentoMin: 60000, orcamentoMax: 200000, tiposCarro: ['coupe', 'sedan'], faixaEtaria: '18-25', nivelRendimento: 'medio' },
-    { antecedente: ['medio', 'baixo', 'executivos', 'subúrbios'], consequente: 'Maia', confidence: 0.62, image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80', description: 'Subúrbio para executivos com orçamento médio.', lat: 41.2333, lng: -8.6167, orcamentoMin: 50000, orcamentoMax: 150000, tiposCarro: ['sedan', 'suv'], faixaEtaria: '41-60', nivelRendimento: 'medio' },
-    { antecedente: ['economico', 'medio', 'executivos', 'praia'], consequente: 'Póvoa de Varzim', confidence: 0.68, image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80', description: 'Costa para executivos com orçamento económico.', lat: 41.3833, lng: -8.7667, orcamentoMin: 40000, orcamentoMax: 100000, tiposCarro: ['hatchback', 'coupe'], faixaEtaria: '41-60', nivelRendimento: 'medio' },
-    { antecedente: ['luxo', 'baixo', 'familias', 'centro'], consequente: 'Porto Centro', confidence: 0.76, image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80', description: 'Centro para famílias com luxo acessível.', lat: 41.1579, lng: -8.6291, orcamentoMin: 80000, orcamentoMax: 300000, tiposCarro: ['suv', 'sedan'], faixaEtaria: '26-40', nivelRendimento: 'alto' },
-    { antecedente: ['medio', 'alto', 'jovens', 'praia'], consequente: 'Leça da Palmeira', confidence: 0.74, image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80', description: 'Praia para jovens com orçamento médio-alto.', lat: 41.1917, lng: -8.7000, orcamentoMin: 50000, orcamentoMax: 150000, tiposCarro: ['coupe', 'hatchback'], faixaEtaria: '18-25', nivelRendimento: 'medio' },
-    { antecedente: ['economico', 'alto', 'jovens', 'subúrbios'], consequente: 'Vila Nova de Gaia', confidence: 0.66, image: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80', description: 'Subúrbio para jovens com orçamento económico.', lat: 41.1333, lng: -8.6167, orcamentoMin: 40000, orcamentoMax: 120000, tiposCarro: ['hatchback', 'eletrico'], faixaEtaria: '18-25', nivelRendimento: 'medio' }
-  ];
+  // Passo 2: Gerar regras de associação dinamicamente a partir das transações
+  const ruleMap = {};
+  transactions.forEach(transaction => {
+    const antecedente = transaction.slice(0, 4); // First 4 items as criteria
+    const consequente = transaction[4]; // Last item as location
+    const key = antecedente.join(',') + '->' + consequente;
+    if (!ruleMap[key]) {
+      ruleMap[key] = { antecedente, consequente, count: 0 };
+    }
+    ruleMap[key].count++;
+  });
+
+  // Calcular suporte e confiança para cada regra
+  let regras = [];
+  for (const key in ruleMap) {
+    const rule = ruleMap[key];
+    const supportAntecedente = transactions.filter(t => rule.antecedente.every(item => t.includes(item))).length / totalTransactions;
+    const supportRule = rule.count / totalTransactions;
+    const confidence = supportRule / supportAntecedente;
+
+    if (supportRule >= minSupport && confidence >= minConfidence && locationData[rule.consequente]) {
+      regras.push({
+        antecedente: rule.antecedente,
+        consequente: rule.consequente,
+        confidence,
+        ...locationData[rule.consequente]
+      });
+    }
+  }
 
   // Filtrar regras com base em filtros avançados
   if (filtrosAvancados.orcamentoMin || filtrosAvancados.orcamentoMax) {
