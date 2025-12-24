@@ -423,7 +423,7 @@ document.getElementById('consultoriaForm').addEventListener('submit', async func
 
   // Atualizar imagem do mapa com um mapa mundial destacando o Grande Porto
   if (melhorRegra.consequente) {
-    document.getElementById('map').src = '../img/mapa.png';
+    document.getElementById('map').src = './img/mapa.png';
     document.getElementById('map').alt = 'Mapa do Grande Porto';
   }
 
@@ -626,7 +626,7 @@ document.addEventListener('click', function (e) {
 function updateLanguageDisplay(lang) {
   const t = translations[lang];
   const timestamp = Date.now();
-  document.getElementById('currentFlag').src = ((lang == 'pt') ? '../img/pt.png' : '../img/en.png') + '?t=' + timestamp;
+  document.getElementById('currentFlag').src = ((lang == 'pt') ? './img/pt.png' : './img/en.png') + '?t=' + timestamp;
   //document.getElementById('currentLanguage').textContent = t.language;
 
 }
