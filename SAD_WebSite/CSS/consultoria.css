@@ -9,7 +9,6 @@ body {
   overflow-y: auto;
   height: 100%;
 }
-
 .hero {
   background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1400&h=800&q=80') center/cover no-repeat;
   background-size: cover;

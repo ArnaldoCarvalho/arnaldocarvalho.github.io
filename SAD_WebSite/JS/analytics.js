@@ -4,16 +4,16 @@ class AnalyticsDashboard {
     this.charts = {};
   }
 
-  // chama api para obter dados historico
+  // obtem dados historico do Firebase
   async fetchAnalyticsData() {
     try {
-      const response = await fetch('api.php?action=getHistorico');
-      const result = await response.json();
-
-      if (!result.success || !result.historico) {
-        throw new Error('Failed to fetch analytics data');
-      }
-      return result.historico;
+      const q = query(collection(db, 'recommendations'), orderBy('data', 'desc'));
+      const querySnapshot = await getDocs(q);
+      const historico = [];
+      querySnapshot.forEach((doc) => {
+        historico.push({ id: doc.id, ...doc.data() });
+      });
+      return historico;
     } catch (error) {
       console.error('Error fetching analytics data:', error);
       return [];

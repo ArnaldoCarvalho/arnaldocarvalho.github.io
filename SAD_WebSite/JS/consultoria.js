@@ -1,3 +1,7 @@
+// Firebase imports
+import { collection, addDoc, getDocs, doc, updateDoc, query, orderBy, where, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+import { db } from './firebase-config.js';
+
 // Check login status on page load
 //console.log('Checking login status:', localStorage.getItem('loggedIn'));
 // Temporarily disabled for fictional direct access demo
@@ -59,15 +63,18 @@ async function loadHistorico(showAll = false) {
   historicoLista.innerHTML = '';
 
   try {
-    const response = await fetch('api.php?action=getHistorico');
-    const data = await response.json();
+    const q = query(collection(db, 'recommendations'), orderBy('data', 'desc'));
+    const querySnapshot = await getDocs(q);
+    const historico = [];
+    querySnapshot.forEach((doc) => {
+      historico.push({ id: doc.id, ...doc.data() });
+    });
 
-    if (!data.success || !data.historico || data.historico.length === 0) {
+    if (historico.length === 0) {
       historicoLista.innerHTML = '<div class="col-12 text-center"><p class="text-muted">' + translations[currentLanguage].noRecommendations + '</p></div>';
       return;
     }
 
-    const historico = data.historico;
     const totalToShow = showAll ? historico.length : Math.min(displayedHistoricoCount, historico.length);
 
     // mostra entrada mais recente
@@ -83,7 +90,7 @@ async function loadHistorico(showAll = false) {
           <div class="card-body">
             <h6 class="card-title">${item.local}</h6>
             <p class="card-text"><strong>${translations[currentLanguage].criteria}</strong> ${criteriosStr}</p>
-            <p class="card-text"><strong>${translations[currentLanguage].date}</strong> ${new Date(item.data).toLocaleDateString('pt-PT')}</p>
+            <p class="card-text"><strong>${translations[currentLanguage].date}</strong> ${new Date(item.data.seconds * 1000).toLocaleDateString('pt-PT')}</p>
             <p class="card-text"><strong>${translations[currentLanguage].feedback}</strong> ${item.feedback || translations[currentLanguage].none}</p>
           </div>
         </div>
@@ -122,6 +129,7 @@ async function loadHistorico(showAll = false) {
       showMoreBtn.style.display = 'block';
     }
   } catch (error) {
+    console.error('Erro ao carregar histórico:', error);
     historicoLista.innerHTML = '<div class="col-12 text-center"><p class="text-muted">' + translations[currentLanguage].noRecommendations + '</p></div>';
   }
 }
@@ -186,13 +194,9 @@ document.getElementById('thumbsUp').addEventListener('click', async function () 
     feedbackGiven = true;
     try {
       // atualizar feedback com id feedback
-      await fetch('api.php?action=saveFeedback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          feedback_id: currentFeedbackId,
-          feedback: true
-        })
+      const feedbackRef = doc(db, 'recommendations', currentFeedbackId);
+      await updateDoc(feedbackRef, {
+        feedback: true
       });
       //ajustarConfiança(currentRecommendation.consequente, true);
       const t = translations[currentLanguage];
@@ -210,13 +214,9 @@ document.getElementById('thumbsDown').addEventListener('click', async function (
     feedbackGiven = true;
     try {
       // atualizar feedback com id feedback
-      await fetch('api.php?action=saveFeedback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          feedback_id: currentFeedbackId,
-          feedback: false
-        })
+      const feedbackRef = doc(db, 'recommendations', currentFeedbackId);
+      await updateDoc(feedbackRef, {
+        feedback: false
       });
       //ajustarConfiança(currentRecommendation.consequente, false);
       const t = translations[currentLanguage];
@@ -387,27 +387,17 @@ document.getElementById('consultoriaForm').addEventListener('submit', async func
     }
   });
 
-  // Save recommendation and criteria to backend with feedback null
+  // Save recommendation and criteria to Firebase with feedback null
   try {
-    const payload = {
+    const docRef = await addDoc(collection(db, 'recommendations'), {
       local: melhorRegra.consequente,
       criterios: respostas,
       advancedFilters: filtrosAvancados,
-      feedback: null
-    };
-    const response = await fetch('api.php?action=saveRecommendation', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      feedback: null,
+      data: new Date()
     });
-    const data = await response.json();
-    if (data.success) {
-      currentRecommendationId = data.recomendacao_id;
-      // Store feedback_id for direct feedback update
-      currentFeedbackId = data.feedback_id;
-    } else {
-      console.error('Erro ao salvar recomendação:', data.error || 'Unknown error');
-    }
+    currentRecommendationId = docRef.id;
+    currentFeedbackId = docRef.id; // Use the same ID for feedback update
   } catch (error) {
     console.error('Erro ao salvar recomendação:', error);
   }

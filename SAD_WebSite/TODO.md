@@ -1,19 +1,29 @@
-# TODO: Implement Login and Registration System
+# TODO: Migrar Projeto para Firebase Firestore
 
-## Tasks
-- [x] Create login.html with login form
-- [x] Create register.html with registration form
-- [x] Modify consultoria.html to check login status and redirect if not logged in
-- [x] Add logout functionality to consultoria.html navbar
-- [x] Add console.log statements for debugging login flow
-- [x] Disable login check for fictional direct access demo
-- [x] Test the complete flow: Register -> Login -> Access -> Logout (Completed with hardcoded credentials for demo)
+## Information Gathered
+- **Current Setup**: O projeto usa PHP backend com MySQL local. O arquivo `api.php` lida com ações como `saveRecommendation`, `saveFeedback`, `getHistorico`, `getCriterios`. O banco de dados inclui tabelas como `recomendacoes`, `criterios`, `feedbacks`, `fAvancados`, `carros`.
+- **Frontend**: `consultoria.js` faz chamadas fetch para `api.php`.
+- **Migration Goal**: Substituir MySQL por Firebase Firestore, movendo a lógica do backend para o frontend JavaScript usando Firebase SDK.
 
-## Details
-- Use localStorage for storing user credentials (plain text for simplicity)
-- Login form: username and password fields, submit button
-- Register form: username and password fields, confirm password, submit button
-- On successful login/register, redirect to consultoria.html
-- On consultoria.html load, check if 'loggedIn' is 'true' in localStorage, else redirect to login.html
-- Add logout button in navbar that sets 'loggedIn' to 'false' and redirects to login.html
-- Style with Bootstrap to match existing theme
+## Plan
+- [x] **Configurar Firebase**: Criar projeto Firebase, habilitar Firestore e Authentication se necessário. Adicionar Firebase SDK ao HTML.
+- [x] **Migrar Modelo de Dados**: Adaptar tabelas MySQL para coleções Firestore (e.g., `recomendacoes` -> collection `recommendations`).
+- [x] **Atualizar consultoria.js**: Substituir chamadas fetch para `api.php` por operações Firestore (addDoc, getDocs, updateDoc, etc.).
+- [x] **Atualizar analytics.js**: Substituir fetch para `api.php` por operações Firestore.
+- [x] **Remover Arquivos PHP**: Remover ou arquivar `db.php` e `api.php` após migração. ✅ Arquivos removidos.
+- [x] **Testar Funcionalidades**: Verificar salvamento de recomendações, feedback, histórico e critérios.
+- [ ] **Deploy**: Hospedar no Firebase Hosting se desejado.
+
+## Dependent Files to be Edited
+- `SAD-WebSite/JS/consultoria.js`: Principal arquivo a ser atualizado para usar Firebase.
+- `SAD-WebSite/JS/analytics.js`: Atualizado para usar Firebase.
+- `SAD-WebSite/PHP/consultoria.php`: Adicionar scripts Firebase SDK.
+- `SAD-WebSite/PHP/api.php`: Removido após migração.
+- `SAD-WebSite/PHP/db.php`: Removido.
+- Novo arquivo: `SAD-WebSite/JS/firebase-config.js`: Para configuração Firebase.
+
+## Followup Steps
+- Configurar projeto Firebase no console.
+- Instalar Firebase CLI para deploy.
+- Testar em ambiente local e produção.
+- Migrar dados existentes se necessário.
