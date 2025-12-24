@@ -1,3 +1,8 @@
+// analytics.js
+import { collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { db } from '../firebase/firebase.js';
+import { translations, setLanguage, currentLanguage } from './translations.js';
+
 // Analytics Dashboard Module - Versão Aprimorada
 class AnalyticsDashboard {
   constructor() {
@@ -37,7 +42,7 @@ class AnalyticsDashboard {
       criterios[criterioKey] = (criterios[criterioKey] || 0) + 1;
 
       // Count feedbacks
-      const feedback = item.feedback ? item.feedback.toLowerCase() : 'nenhum';
+      const feedback = (typeof item.feedback === 'string') ? item.feedback.toLowerCase() : 'nenhum';
       feedbacks[feedback]++;
 
       // Calculate success rates per location
@@ -47,8 +52,8 @@ class AnalyticsDashboard {
       successRates[item.local].total++;
       (feedback === 'sim') ? successRates[item.local].positive++ : (feedback === 'nenhum') ? successRates[item.local].nenhum++ : null;
 
-      // Timeline data
-      const date = new Date(item.data).toISOString().split('T')[0];
+      const dateObj = item.data.toDate(); // Converte de Timestamp para JS Date
+      const date = dateObj.toISOString().split('T')[0];
       timelineData[date] = (timelineData[date] || 0) + 1;
     });
 

@@ -1,6 +1,6 @@
 // Firebase imports
-import { collection, addDoc, getDocs, doc, updateDoc, query, orderBy, where, getDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-import { db } from './firebase-config.js';
+import { collection, addDoc, getDocs, doc, updateDoc, query, orderBy, where, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { db } from '../firebase/firebase.js';
 
 // Check login status on page load
 //console.log('Checking login status:', localStorage.getItem('loggedIn'));
@@ -12,7 +12,8 @@ import { db } from './firebase-config.js';
 //   console.log('Logged in, staying on page');
 // }
 //console.log('Direct access enabled for demo');
-
+import { translations, setLanguage, currentLanguage } from './translations.js';
+import { gerarRecomendacao } from './apriori.js';
 
 let currentRecommendation = null;
 let currentRecommendationId = null; // guarda id recomendacao
@@ -618,6 +619,7 @@ document.addEventListener('click', function (e) {
     const lang = e.target.closest('.dropdown-item').getAttribute('data-lang');
     setLanguage(lang);
     updateLanguageDisplay(lang);
+    console.log(lang)
   }
 });
 
@@ -633,7 +635,7 @@ function updateLanguageDisplay(lang) {
 updateLanguageDisplay(currentLanguage);
 
 // Logout functionality
-document.getElementById('logoutBtn').addEventListener('click', function () {
+document.getElementById('btnLogout').addEventListener('click', function () {
   localStorage.setItem('loggedIn', 'false');
   window.location.href = '../login.html';
 });

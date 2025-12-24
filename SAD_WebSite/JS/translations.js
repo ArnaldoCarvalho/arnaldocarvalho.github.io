@@ -1,5 +1,5 @@
 // Suporte multi-idioma
-const translations = {
+export const translations = {
   pt: {
     language: "Português",
     title: "Consultoria Auto Premium",
@@ -264,9 +264,9 @@ const translations = {
   }
 };
 
-let currentLanguage = localStorage.getItem('language') || 'pt';
+export let currentLanguage = localStorage.getItem('language') || 'pt';
 
-function setLanguage(lang) {
+export function setLanguage(lang) {
   currentLanguage = lang;
   localStorage.setItem('language', lang);
   // Reload the page after changing language to apply changes fully

@@ -34,7 +34,7 @@ async function fetchMarketData() {
   });
 }
 
-function gerarRecomendacao(transactions, respostas, filtrosAvancados, minSupport, minConfidence) {
+export function gerarRecomendacao(transactions, respostas, filtrosAvancados, minSupport, minConfidence) {
   // Passo 1: Calcular suporte para itens individuais
   const itemCounts = {};
   transactions.forEach(transaction => {
