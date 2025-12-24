@@ -352,7 +352,7 @@ function updateTexts() {
   document.querySelector('label[for="email"]').textContent = t.email;
   document.querySelector('label[for="mensagem"]').textContent = t.message;
   document.querySelector('#contacto button').textContent = t.sendMessage;
-  document.querySelector('footer p').textContent = t.footerText;
+  //document.querySelector('footer p').textContent = t.footerText;
 
   // Navbar links
   const navLinks = document.querySelectorAll('.navbar-nav .nav-link');

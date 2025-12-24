@@ -1,4 +1,4 @@
-import { db } from "../JS/firebase-config.js";
+import { db } from "./firebase.js";
 import {
   collection,
   addDoc,
@@ -10,7 +10,7 @@ import {
   doc,
   updateDoc,
   getDoc
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
 export async function saveFeedback(userId, texto, score) {
   await addDoc(collection(db, "feedback"), {

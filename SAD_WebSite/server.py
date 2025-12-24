@@ -7,7 +7,7 @@ import os
 PORT = 8080
 
 # Change to the SAD-WebSite directory
-os.chdir('SAD-WebSite')
+#os.chdir('SAD-WebSite')
 
 # força .js como application/javascript
 mimetypes.add_type('application/javascript', '.js')

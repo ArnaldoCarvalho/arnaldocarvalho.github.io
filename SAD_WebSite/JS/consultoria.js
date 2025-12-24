@@ -2,16 +2,6 @@
 import { collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, orderBy, where, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import { db, auth } from '../firebase/firebase.js';
 
-// Check login status on page load
-//console.log('Checking login status:', localStorage.getItem('loggedIn'));
-// Temporarily disabled for fictional direct access demo
-// if (localStorage.getItem('loggedIn') !== 'true') {
-//   console.log('Not logged in, redirecting to login.html');
-//   window.location.href = '../login.html';
-// } else {
-//   console.log('Logged in, staying on page');
-// }
-//console.log('Direct access enabled for demo');
 import { translations, setLanguage, currentLanguage } from './translations.js';
 import { gerarRecomendacao } from './apriori.js';
 import { getAllTransactions, saveTransaction } from '../firebase/firestore.js';
@@ -22,6 +12,30 @@ let currentCriterioId = null;
 let currentFeedbackId = null; // guarda id feedback para atualizar
 let currentRespostas = null;
 let feedbackGiven = false;
+
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+
+document.addEventListener('DOMContentLoaded', () => {
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      // Usuário logado
+      console.log('Usuário logado:', user.email);
+
+      // Carregar histórico e dados da página
+      window.scrollTo(0, 0);
+      loadHistorico();
+
+      // Habilitar botões ou campos que dependem do login
+      document.getElementById('consultoriaForm').style.display = 'block';
+
+    } else {
+      // Usuário não logado
+      console.log('Usuário não está logado, redirecionando para login...');
+      window.location.href = './login.html';
+    }
+  });
+});
+
 
 
 // Dados padrão
@@ -43,21 +57,6 @@ let regrasRelacionadas = [
   { antecedente: ['economico', 'medio', 'jovens'], consequente: 'Póvoa de Varzim', confidence: 0.65 }
 ];
 
-// Carregar dados aprendidos do localStorage
-/*function loadLearnedData() {
-  const savedLocais = localStorage.getItem('locaisConhecidos');
-  if (savedLocais) {
-    const learnedLocais = JSON.parse(savedLocais);
-    locaisConhecidos = { ...locaisConhecidos, ...learnedLocais };
-  }
-  const savedRegras = localStorage.getItem('regrasRelacionadas');
-  if (savedRegras) {
-    const learnedRegras = JSON.parse(savedRegras);
-    regrasRelacionadas = [...regrasRelacionadas, ...learnedRegras];
-  }
-}*/
-
-// Carregar histórico de recomendações com paginação básica para 4 em 4 entradas
 let displayedHistoricoCount = 4;
 
 async function loadHistorico(showAll = false) {
@@ -163,12 +162,6 @@ document.getElementById('limparHistorico').addEventListener('click', async funct
     }
   }
 });
-
-// Salvar dados aprendidos no localStorage
-/*function saveLearnedData() {
-  localStorage.setItem('locaisConhecidos', JSON.stringify(locaisConhecidos));
-  localStorage.setItem('regrasRelacionadas', JSON.stringify(regrasRelacionadas));
-}*/
 
 document.addEventListener('DOMContentLoaded', () => {
   window.scrollTo(0, 0); // Scroll no inicio quando carrega pagina
@@ -679,11 +672,18 @@ function updateLanguageDisplay(lang) {
 // Initialize language display
 updateLanguageDisplay(currentLanguage);
 
-// Logout functionality
-document.getElementById('btnLogout').addEventListener('click', function () {
-  localStorage.setItem('loggedIn', 'false');
-  window.location.href = '../login.html';
+document.getElementById('btnLogout').addEventListener('click', async () => {
+  try {
+    await signOut(auth);
+    console.log('Usuário deslogado com sucesso.');
+    // Redireciona para a página de login
+    window.location.replace('./login.html');
+  } catch (error) {
+    console.error('Erro ao deslogar:', error);
+    alert('Erro ao tentar sair. Tente novamente.');
+  }
 });
+
 
 let scrollTimer;
 
