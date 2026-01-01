@@ -18,8 +18,8 @@ import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/
 document.addEventListener('DOMContentLoaded', () => {
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      // Usuário logado
-      console.log('Usuário logado:', user.email);
+      // Utilizador logado
+      console.log('Utilizador logado:', user.email);
 
       // Carregar histórico e dados da página
       window.scrollTo(0, 0);
@@ -29,8 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('consultoriaForm').style.display = 'block';
 
     } else {
-      // Usuário não logado
-      console.log('Usuário não está logado, redirecionando para login...');
+      // Utilizador não logado
+      console.log('Utilizador não está logado, redirecionando para login...');
       window.location.href = './login.html';
     }
   });
@@ -40,12 +40,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Dados padrão
 let locaisConhecidos = {
-  'Porto Centro': { lat: 41.1579, lng: -8.6291, image: 'https://via.placeholder.com/800x400?text=Porto+Centro', description: 'Centro histórico do Porto, ideal para stands de luxo com alta visibilidade.' },
-  'Vila Nova de Gaia': { lat: 41.1333, lng: -8.6167, image: 'https://via.placeholder.com/800x400?text=Vila+Nova+de+Gaia', description: 'Subúrbio familiar com acesso fácil ao Porto, perfeito para famílias.' },
-  'Leça da Palmeira': { lat: 41.1917, lng: -8.7000, image: 'https://via.placeholder.com/800x400?text=Le%C3%A7a+da+Palmeira', description: 'Área costeira vibrante, atrativa para jovens e turismo.' },
-  'Gondomar': { lat: 41.1500, lng: -8.5333, image: 'https://via.placeholder.com/800x400?text=Gondomar', description: 'Área residencial acessível, ideal para famílias com orçamento limitado.' },
-  'Maia': { lat: 41.2333, lng: -8.6167, image: 'https://via.placeholder.com/800x400?text=Maia', description: 'Subúrbio moderno com boas infraestruturas familiares.' },
-  'Póvoa de Varzim': { lat: 41.3833, lng: -8.7667, image: 'https://via.placeholder.com/800x400?text=P%C3%B3voa+de+Varzim', description: 'Costa norte com praias e vida noturna, atrativa para jovens.' }
+  'Porto Centro': { lat: 41.1579, lng: -8.6291, image: 'https://via.placeholder.com/800x400?text=Porto+Centro', description: 'Centro histórico do Porto, ideal para stands de luxo com alta visibilidade.', baseRent: 5000, locationMultiplier: 1.5 },
+  'Vila Nova de Gaia': { lat: 41.1333, lng: -8.6167, image: 'https://via.placeholder.com/800x400?text=Vila+Nova+de+Gaia', description: 'Subúrbio familiar com acesso fácil ao Porto, perfeito para famílias.', baseRent: 3000, locationMultiplier: 1.0 },
+  'Leça da Palmeira': { lat: 41.1917, lng: -8.7000, image: 'https://via.placeholder.com/800x400?text=Le%C3%A7a+da+Palmeira', description: 'Área costeira vibrante, atrativa para jovens e turismo.', baseRent: 3500, locationMultiplier: 1.2 },
+  'Gondomar': { lat: 41.1500, lng: -8.5333, image: 'https://via.placeholder.com/800x400?text=Gondomar', description: 'Área residencial acessível, ideal para famílias com orçamento limitado.', baseRent: 2500, locationMultiplier: 0.8 },
+  'Maia': { lat: 41.2333, lng: -8.6167, image: 'https://via.placeholder.com/800x400?text=Maia', description: 'Subúrbio moderno com boas infraestruturas familiares.', baseRent: 3200, locationMultiplier: 1.0 },
+  'Póvoa de Varzim': { lat: 41.3833, lng: -8.7667, image: 'https://via.placeholder.com/800x400?text=P%C3%B3voa+de+Varzim', description: 'Costa norte com praias e vida noturna, atrativa para jovens.', baseRent: 3800, locationMultiplier: 1.3 }
 };
 
 let regrasRelacionadas = [
@@ -57,7 +57,140 @@ let regrasRelacionadas = [
   { antecedente: ['economico', 'medio', 'jovens'], consequente: 'Póvoa de Varzim', confidence: 0.65 }
 ];
 
+// Multiplicadores de custo por critério
+const costMultipliers = {
+  gama: { luxo: 2.0, medio: 1.5, economico: 1.0 },
+  orcamento: { alto: 1.8, medio: 1.3, baixo: 1.0 },
+  cliente: { executivos: 1.7, familias: 1.2, jovens: 1.0 },
+  localizacao: { centro: 1.6, subúrbios: 1.2, praia: 1.4 }
+};
+
+// Função para calcular o custo operacional estimado
+function calcularCustoOperacional(local, criterios) {
+  const localInfo = locaisConhecidos[local];
+  if (!localInfo) return null;
+
+  let baseCost = localInfo.baseRent * localInfo.locationMultiplier;
+
+  // Aplicar multiplicadores baseados nos critérios
+  const [gama, orcamento, cliente, localizacao] = criterios;
+  baseCost *= costMultipliers.gama[gama] || 1.0;
+  baseCost *= costMultipliers.orcamento[orcamento] || 1.0;
+  baseCost *= costMultipliers.cliente[cliente] || 1.0;
+  baseCost *= costMultipliers.localizacao[localizacao] || 1.0;
+
+  // Custos adicionais fixos (estimados)
+  const additionalCosts = {
+    utilities: 500, // Eletricidade, água, etc.
+    staff: 2000, // Salários básicos
+    maintenance: 300, // Manutenção
+    marketing: 400 // Marketing local
+  };
+
+  const totalCost = baseCost + additionalCosts.utilities + additionalCosts.staff + additionalCosts.maintenance + additionalCosts.marketing;
+
+  return {
+    total: Math.round(totalCost),
+    breakdown: {
+      rent: Math.round(baseCost),
+      utilities: additionalCosts.utilities,
+      staff: additionalCosts.staff,
+      maintenance: additionalCosts.maintenance,
+      marketing: additionalCosts.marketing
+    }
+  };
+}
+
 let displayedHistoricoCount = 4;
+
+// Dados dos modelos por gama
+const modelosPorGama = {
+  luxo: [
+    "Audi A8", "Audi Q8", "Audi e-tron GT", "Audi R8",
+    "BMW Série 7", "BMW Série 8", "BMW i7", "BMW iX", "BMW XM", "BMW X5", "BMW M5", "BMW M8",
+    "Mercedes-Benz Classe S", "Mercedes-Benz Classe G", "Mercedes-Benz GLE", "Mercedes-Benz GLS", "Mercedes-Benz EQC", "Mercedes-Benz EQE", "Mercedes-Benz EQS", "Mercedes-Benz EQV", "Mercedes-Benz AMG GT", "Mercedes-Benz AMG SL", "Mercedes-Benz MayBach Classe S", "Mercedes-Benz MayBach EQS", "Mercedes-Benz MayBach GLS", "Mercedes-Benz MayBach SL", "Mercedes-Benz SLR McLaren",
+    "Porsche Taycan", "Porsche Panamera", "Porsche 911", "Porsche 718",
+    "Maserati Grecale", "Maserati Grancabrio", "Maserati MCPura", "Maserati MC20", "Maserati GranTurismo", "Maserati GT2", "Maserati MCXtrema",
+    "Ferrari Roma", "Ferrari SF90", "Ferrari Purosangue", "Ferrari 296 GTB", "Ferrari 12cilindri", "Ferrari Daytona SP3", "Ferrari Amalfi", "Ferrari F12berlinetta", "Ferrari 812", "Ferrari GTC4Lusso", "Ferrari California", "Ferrari Portofino", "Ferrari Testarossa", "Ferrari 360", "Ferrari 488", "Ferrari F8", "Ferrari Monza SP1", "Ferrari Monza SP2", "Ferrari 288 GTO", "Ferrari F40", "Ferrari F50", "Ferrari Enzo", "Ferrari LaFerrari", "Ferrari F80",
+    "Lamborghini Revuelto", "Lamborghini Huracán", "Lamborghini Urus", "Lamborghini Aventador", "Lamborghini Countach", "Lamborghini Temerario", "Lamborghini Miura", "Lamborghini Diablo", "Lamborghini Murciélago", "Lamborghini Gallardo",
+    "Pagani Utopia", "Pagani Huayra R",
+    "Bugatti Veyron", "Bugatti Chiron", "Bugatti Mistral", "Bugatti Tourbillon",
+    "Volvo EX90",
+    "Koenigsegg One:1", "Koenigsegg Gemera", "Koenigsegg Agera", "Koenigsegg CC850",
+    "Jaguar F-Type", "Jaguar F-Pace", "Jaguar I-Pace", "Jaguar XJ",
+    "Land Rover Defender", "Land Rover Range Rover", "Land Rover Range Rover Sport",
+    "Aston Martin DB5", "Aston Martin DBX", "Aston Martin DB12", "Aston Martin Vantage", "Aston Martin Vanquish", "Aston Martin Valhalla", "Aston Martin Valkyrie",
+    "McLaren 765LT", "McLaren 720S", "McLaren Artura", "McLaren 750S", "McLaren GT", "McLaren 570S", "McLaren P1", "McLaren Senna", "McLaren Speedtail", "McLaren W1",
+    "Rimac Nevera",
+    "Ford Mustang GT",
+    "Tesla Model S", "Tesla Model X",
+    "Chevrolet Corvette C8 Stingray", "Chevrolet Corvette C1", "Chevrolet Corvette C7",
+    "Cadillac Escalade",
+    "Toyota Supra MK4", "Toyota Supra MK5",
+    "Lexus LFA", "Lexus RX",
+    "BYD Tang"
+  ],
+  medio: [
+    "Audi A5", "Audi A6", "Audi A7", "Audi Q5", "Audi Q6 e-tron", "Audi Q7",
+    "BMW Série 3", "BMW Série 4", "BMW Série 5", "BMW i4", "BMW i5", "BMW iX1", "BMW iX2", "BMW iX3", "BMW X1", "BMW X3", "BMW Z4", "BMW M2", "BMW M3", "BMW M4",
+    "Mercedes-Benz Classe C", "Mercedes-Benz Classe E", "Mercedes-Benz Classe V", "Mercedes-Benz GLA", "Mercedes-Benz GLB", "Mercedes-Benz GLC", "Mercedes-Benz EQA", "Mercedes-Benz EQB", "Mercedes-Benz CLA", "Mercedes-Benz CLE",
+    "Volkswagen ID.4", "Volkswagen ID.5", "Volkswagen Tiguan", "Volkswagen Passat",
+    "Porsche Cayenne", "Porsche Macan",
+    "Peugeot 408", "Peugeot 3008",
+    "Volvo XC60",
+    "Polestar Polestar 3",
+    "Jaguar E-Pace",
+    "Land Rover Evoque", "Land Rover Discovery Sport",
+    "Mini Countryman",
+    "Cupra Tavascan",
+    "Skoda Enyaq", "Skoda Kodiaq",
+    "Ford Kuga", "Ford Mustang Mach-E",
+    "Chevrolet Camaro",
+    "Jeep Grand Cherokee",
+    "Toyota C-HR", "Toyota RAV4",
+    "Lexus UX", "Lexus NX", "Lexus RZ",
+    "Honda Civic Type-R", "Honda CR-V",
+    "Mazda MX-5", "Mazda MX-7",
+    "Nissan X-Trail", "Nissan Ariya",
+    "Hyundai Tucson",
+    "MG Marvel R"
+  ],
+  economico: [
+    "Audi A1", "Audi A3", "Audi A4", "Audi Q2", "Audi Q3", "Audi Q4 e-tron",
+    "BMW Isetta", "BMW Série 1", "BMW Série 2",
+    "Mercedes-Benz Classe A", "Mercedes-Benz Classe B", "Mercedes-Benz Classe T", "Mercedes-Benz EQT",
+    "Volkswagen Golf", "Volkswagen ID.3",
+    "Opel Astra", "Opel Corsa", "Opel Mokka", "Opel Grandland",
+    "Smart #1", "Smart #3",
+    "Fiat 500e", "Fiat Tipo", "Fiat 600e",
+    "Alfa Romeo Tonale", "Alfa Romeo Giulia", "Alfa Romeo Stelvio",
+    "Renault Clio", "Renault Captur", "Renault Arkana", "Renault Megane E-Tech",
+    "Peugeot 208", "Peugeot 2008", "Peugeot 308",
+    "Citroën C3", "Citroën C4", "Citroën ë-C4", "Citroën C5 X",
+    "DS Automobiles DS 3", "DS Automobiles DS 4", "DS Automobiles DS 7", "DS Automobiles DS 9",
+    "Volvo XC40", "Volvo C40", "Volvo EX30",
+    "Polestar Polestar 2", "Polestar Polestar 4",
+    "Mini Cooper", "Mini Electric",
+    "Seat Leon", "Seat Arona", "Seat Ateca",
+    "Cupra Formentor", "Cupra Born",
+    "Skoda Octavia", "Skoda Fabia", "Skoda Superb",
+    "Dacia Sandero", "Dacia Logan", "Dacia Spring", "Dacia Duster",
+    "Ford Focus", "Ford Fiesta", "Ford Puma",
+    "Tesla Model 3", "Tesla Model Y",
+    "Chevrolet Onix",
+    "Jeep Renegade", "Jeep Compass", "Jeep Wrangler",
+    "Toyota Corolla", "Toyota Yaris", "Toyota Aygo X", "Toyota bZ4X",
+    "Honda Civic", "Honda HR-V", "Honda Jazz", "Honda e:Ny1",
+    "Mazda Mazda 2", "Mazda Mazda 3", "Mazda CX-30", "Mazda CX-5", "Mazda MX-30",
+    "Nissan Qashqai", "Nissan Juke", "Nissan Leaf",
+    "Subaru Impreza", "Subaru XV", "Subaru Outback", "Subaru Solterra",
+    "Suzuki Swift", "Suzuki Vitara", "Suzuki S-Cross",
+    "Hyundai i20", "Hyundai i30", "Hyundai Kona", "Hyundai Ioniq 5", "Hyundai Ioniq 6",
+    "Kia Ceed", "Kia Sportage", "Kia Niro", "Kia EV6", "Kia EV9",
+    "MG MG4", "MG MG5", "MG ZS EV",
+    "BYD Atto 3", "BYD Dolphin", "BYD Seal"
+  ]
+};
 
 async function loadHistorico(showAll = false) {
   const historicoLista = document.getElementById('historicoLista');
@@ -194,6 +327,61 @@ document.getElementById('gama').addEventListener('change', function () {
       orcamentoSelect.value = '';
     }
   }
+
+  // Populate modelo select based on gama
+  populateModeloSelect(this.value);
+});
+
+// Function to populate modelo select
+function populateModeloSelect(gama) {
+  const modeloSelect = document.getElementById('modelo');
+  modeloSelect.innerHTML = '<option value="">Selecione</option>';
+
+  if (modelosPorGama[gama]) {
+    modelosPorGama[gama].forEach(modelo => {
+      const option = document.createElement('option');
+      option.value = modelo;
+      option.textContent = modelo;
+      modeloSelect.appendChild(option);
+    });
+  }
+
+  // Always add the custom option
+  const customOption = document.createElement('option');
+  customOption.value = 'custom';
+  customOption.textContent = 'Adicionar novo modelo';
+  modeloSelect.appendChild(customOption);
+}
+
+// Event listener for modelo search
+document.getElementById('modeloSearch').addEventListener('input', function () {
+  const searchTerm = this.value.toLowerCase();
+  const modeloSelect = document.getElementById('modelo');
+  const options = modeloSelect.querySelectorAll('option');
+
+  options.forEach(option => {
+    if (option.value === '') return; // Skip the "Selecione" option
+    const text = option.textContent.toLowerCase();
+    if (text.includes(searchTerm)) {
+      option.style.display = 'block';
+    } else {
+      option.style.display = 'none';
+    }
+  });
+});
+
+// Event listener for modelo select change
+document.getElementById('modelo').addEventListener('change', function () {
+  const customContainer = document.getElementById('customModeloContainer');
+  const customInput = document.getElementById('customModelo');
+  if (this.value === 'custom') {
+    customContainer.style.display = 'block';
+    customInput.required = true;
+  } else {
+    customContainer.style.display = 'none';
+    customInput.required = false;
+    customInput.value = '';
+  }
 });
 
 function disabledFeedbackButtons() {
@@ -211,7 +399,7 @@ document.getElementById('thumbsUp').addEventListener('click', async function () 
       await updateDoc(feedbackRef, {
         feedback: true
       });
-      //ajustarConfiança(currentRecommendation.consequente, true);
+      ajustarConfiança(currentRecommendation.consequente, true);
       const t = translations[currentLanguage];
       alert(t.positiveFeedback);
       disabledFeedbackButtons();
@@ -231,7 +419,7 @@ document.getElementById('thumbsDown').addEventListener('click', async function (
       await updateDoc(feedbackRef, {
         feedback: false
       });
-      //ajustarConfiança(currentRecommendation.consequente, false);
+      ajustarConfiança(currentRecommendation.consequente, false);
       const t = translations[currentLanguage];
       alert(t.negativeFeedback);
       disabledFeedbackButtons();
@@ -246,6 +434,9 @@ document.getElementById('thumbsDown').addEventListener('click', async function (
 document.getElementById('exportBtn').addEventListener('click', function () {
   if (currentRecommendation && currentRespostas) {
     exportarRelatorio(currentRecommendation, currentRespostas);
+  } else {
+    const t = translations[currentLanguage];
+    alert(t.noRecommendationAvailable || 'Por favor, gere uma recomendação primeiro.');
   }
 });
 
@@ -280,6 +471,12 @@ document.getElementById('consultoriaForm').addEventListener('submit', async func
   const cliente = document.getElementById('cliente').value;
   const localizacao = document.getElementById('localizacao').value;
   const localEspecifico = document.getElementById('localEspecifico').value.trim();
+
+  // Get modelo value
+  let modelo = document.getElementById('modelo').value;
+  if (modelo === 'custom') {
+    modelo = document.getElementById('customModelo').value.trim();
+  }
 
   // Filtros avançados
   const orcamentoMin = document.getElementById('orcamentoMin').value;
@@ -321,10 +518,10 @@ document.getElementById('consultoriaForm').addEventListener('submit', async func
   let recomendacaoTexto;
 
   if (localEspecifico) {
-    // Usar local específico fornecido pelo usuário
+    // Usar local específico fornecido pelo utilizador
     const localInfo = locaisConhecidos[localEspecifico];
     if (localInfo) {
-      // Calcular confiança baseada nas respostas do usuário usando o Apriori
+      // Calcular confiança baseada nas respostas do utilizador usando o Apriori
       const regraLocal = regrasRelacionadas.find(r => r.consequente === localEspecifico);
       const confianca = regraLocal ? (regraLocal.confidence * 100).toFixed(0) : '75'; // 75% como padrão para locais conhecidos
 
@@ -340,7 +537,8 @@ document.getElementById('consultoriaForm').addEventListener('submit', async func
       melhorRegra = {
         recomendacao: `Você escolheu abrir o stand em ${localEspecifico}. Confiança baseada no Apriori: ${confianca}%. Esta é uma escolha de qualidade ${qualidade} baseada nos seus critérios.`,
         ...localInfo,
-        consequente: localEspecifico
+        consequente: localEspecifico,
+        confidenceAjustada: confianca / 100
       };
     } else {
       // Local não reconhecido, aprender e adicionar à base de dados
@@ -352,7 +550,7 @@ document.getElementById('consultoriaForm').addEventListener('submit', async func
         description: `Local personalizado: ${localEspecifico}. Adicionado à base de dados baseada nas suas preferências.`
       };
 
-      // Adicionar nova regra baseada nas respostas do usuário
+      // Adicionar nova regra baseada nas respostas do utilizador
       const novaRegra = {
         antecedente: [gama, orcamento, cliente, localizacao],
         consequente: localEspecifico,
@@ -412,6 +610,10 @@ document.getElementById('consultoriaForm').addEventListener('submit', async func
   } else {
     document.getElementById('comparacaoSection').classList.add('d-none');
   }
+
+  // Calcular custo operacional
+  const custoOperacional = calcularCustoOperacional(melhorRegra.consequente, respostas);
+  melhorRegra.custoOperacional = custoOperacional;
 
   // Set current recommendation and responses
   currentRecommendation = melhorRegra;
@@ -478,8 +680,8 @@ document.getElementById('consultoriaForm').addEventListener('submit', async func
 
 });
 
-// Função para ajustar confiança baseada no feedback (nao funciona na BD)
-/*function ajustarConfiança(local, positivo) {
+// Função para ajustar confiança baseada no feedback
+function ajustarConfiança(local, positivo) {
   const regra = regrasRelacionadas.find(r => r.consequente === local);
   if (regra) {
     if (positivo) {
@@ -487,28 +689,198 @@ document.getElementById('consultoriaForm').addEventListener('submit', async func
     } else {
       regra.confidence = Math.max(0.0, regra.confidence - 0.05); // Diminuir confiança em 5%
     }
-    saveLearnedData();
+    // Note: saveLearnedData() is commented out as it's not implemented
+    // saveLearnedData();
   }
-}*/
+}
 
 // Função para exportar relatório
 function exportarRelatorio(recomendacao, criterios) {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
+  try {
+    if (!window.jspdf) {
+      throw new Error('jsPDF library not loaded');
+    }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
 
-  doc.setFontSize(20);
-  doc.text('Relatório de Recomendação - Consultoria Auto Premium', 20, 30);
+    // Header
+    doc.setFontSize(22);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Consultoria Auto Premium', 20, 30);
 
-  doc.setFontSize(14);
-  doc.text(`Local Recomendado: ${recomendacao.consequente}`, 20, 50);
-  doc.text(`Critérios Utilizados: ${criterios.join(', ')}`, 20, 70);
-  doc.text(`Descrição: ${recomendacao.description}`, 20, 90);
-  doc.text(`Confiança: ${recomendacao.confidence ? (recomendacao.confidence * 100).toFixed(0) + '%' : 'N/A'}`, 20, 110);
-  doc.text(`Data: ${new Date().toLocaleDateString('pt-PT')}`, 20, 130);
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Relatório de Recomendação Personalizada', 20, 40);
 
-  doc.save('relatorio_recomendacao.pdf');
-  const t = translations[currentLanguage];
-  alert(t.reportExported);
+    // Line separator
+    doc.setLineWidth(0.5);
+    doc.line(20, 45, 190, 45);
+
+    // Date
+    doc.setFontSize(10);
+    doc.text(`Data de Geração: ${new Date().toLocaleDateString('pt-PT')}`, 20, 55);
+
+    // Section 1: Recomendação Principal
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('1. Recomendação Principal', 20, 75);
+
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Local Recomendado: ${recomendacao.consequente}`, 20, 85);
+    doc.text(`Nível de Confiança: ${recomendacao.confidenceAjustada ? (recomendacao.confidenceAjustada * 100).toFixed(0) + '%' : 'N/A'}`, 20, 95);
+
+    // Description with text wrapping
+    const descriptionLines = doc.splitTextToSize(`Descrição: ${recomendacao.description}`, 170);
+    doc.text(descriptionLines, 20, 105);
+
+    // Section 2: Critérios Utilizados
+    let yPosition = 105 + (descriptionLines.length * 5) + 10;
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('2. Critérios Utilizados', 20, yPosition);
+
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    const criteriosText = `• Tipo de Gama: ${criterios[0] || 'N/A'}\n• Orçamento: ${criterios[1] || 'N/A'}\n• Tipo de Cliente: ${criterios[2] || 'N/A'}\n• Preferência de Localização: ${criterios[3] || 'N/A'}`;
+    const criteriosLines = doc.splitTextToSize(criteriosText, 170);
+    doc.text(criteriosLines, 20, yPosition + 10);
+
+    // Section 3: Detalhes do Local
+    yPosition += 10 + (criteriosLines.length * 5) + 10;
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('3. Detalhes do Local', 20, yPosition);
+
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    if (recomendacao.lat && recomendacao.lng) {
+      doc.text(`Coordenadas: ${recomendacao.lat}, ${recomendacao.lng}`, 20, yPosition + 10);
+    }
+
+    // Section 4: Custo Operacional Estimado
+    yPosition += 30;
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('4. Custo Operacional Estimado Mensal', 20, yPosition);
+
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    if (recomendacao.custoOperacional) {
+      doc.text(`Total: €${recomendacao.custoOperacional.total}`, 20, yPosition + 10);
+      doc.text(`• Renda: €${recomendacao.custoOperacional.breakdown.rent}`, 20, yPosition + 20);
+      doc.text(`• Utilitários: €${recomendacao.custoOperacional.breakdown.utilities}`, 20, yPosition + 30);
+      doc.text(`• Staff: €${recomendacao.custoOperacional.breakdown.staff}`, 20, yPosition + 40);
+      doc.text(`• Manutenção: €${recomendacao.custoOperacional.breakdown.maintenance}`, 20, yPosition + 50);
+      doc.text(`• Marketing: €${recomendacao.custoOperacional.breakdown.marketing}`, 20, yPosition + 60);
+      
+      // Add calculation breakdown table
+      yPosition += 80;
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Detalhamento do Cálculo:', 20, yPosition);
+    
+
+      // Calculate step-by-step values
+      const localInfo = locaisConhecidos[recomendacao.consequente];
+      const [gama, orcamento, cliente, localizacao] = criterios;
+
+      const baseRent = localInfo.baseRent;
+      const locationMultiplier = localInfo.locationMultiplier;
+      const step1 = baseRent;
+      const step2 = step1 * locationMultiplier;
+      const step3 = step2 * (costMultipliers.gama[gama] || 1.0);
+      const step4 = step3 * (costMultipliers.orcamento[orcamento] || 1.0);
+      const step5 = step4 * (costMultipliers.cliente[cliente] || 1.0);
+      const step6 = step5 * (costMultipliers.localizacao[localizacao] || 1.0);
+      const step7 = step6 + 500; // utilities
+      const step8 = step7 + 2000; // staff
+      const step9 = step8 + 300; // maintenance
+      const step10 = step9 + 400; // marketing
+      const finalTotal = Math.round(step10);
+
+      const calculationData = [
+        ['Passo', 'Descrição', 'Fórmula', 'Valor (€)'],
+        ['1', 'Renda base do local', `locaisConhecidos[${recomendacao.consequente}].baseRent`, step1.toFixed(0)],
+        ['2', 'Aplicar multiplicador de localização', `${step1.toFixed(0)} × ${locationMultiplier}`, step2.toFixed(0)],
+        ['3', 'Aplicar multiplicador de gama', `${step2.toFixed(0)} × ${(costMultipliers.gama[gama] || 1.0).toFixed(1)}`, step3.toFixed(0)],
+        ['4', 'Aplicar multiplicador de orçamento', `${step3.toFixed(0)} × ${(costMultipliers.orcamento[orcamento] || 1.0).toFixed(1)}`, step4.toFixed(0)],
+        ['5', 'Aplicar multiplicador de cliente', `${step4.toFixed(0)} × ${(costMultipliers.cliente[cliente] || 1.0).toFixed(1)}`, step5.toFixed(0)],
+        ['6', 'Aplicar multiplicador de localização', `${step5.toFixed(0)} × ${(costMultipliers.localizacao[localizacao] || 1.0).toFixed(1)}`, step6.toFixed(0)],
+        ['7', 'Adicionar custos de utilitários', `${step6.toFixed(0)} + 500`, step7.toFixed(0)],
+        ['8', 'Adicionar custos de staff', `${step7.toFixed(0)} + 2000`, step8.toFixed(0)],
+        ['9', 'Adicionar custos de manutenção', `${step8.toFixed(0)} + 300`, step9.toFixed(0)],
+        ['10', 'Adicionar custos de marketing', `${step9.toFixed(0)} + 400`, step10.toFixed(0)],
+        ['11', 'Arredondar para euro mais próximo', `Math.round(${step10.toFixed(2)})`, finalTotal.toString()]
+      ];
+
+      if (typeof doc.autoTable === 'function') {
+        doc.autoTable({
+          startY: yPosition + 10,
+          head: [calculationData[0]],
+          body: calculationData.slice(1),
+          theme: 'grid',
+          styles: { fontSize: 8, cellPadding: 2 },
+          columnStyles: {
+            0: { cellWidth: 15 },
+            1: { cellWidth: 60 },
+            2: { cellWidth: 70 },
+            3: { cellWidth: 25 }
+          }
+        });
+        yPosition = doc.lastAutoTable.finalY + 20;
+      } else {
+        yPosition += 20;
+      }
+    } else {
+      doc.text('Não disponível', 20, yPosition + 10);
+      yPosition += 20;
+    }
+
+    // Section 5: Análise SWOT
+    yPosition += 30;
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('5. Análise SWOT', 20, yPosition);
+
+    // Criar tabela SWOT
+    const swotData = [
+      ['Forças', 'Fraquezas'],
+      ['• Localização estratégica no Grande Porto\n• Alta visibilidade e acessibilidade\n• Demanda consistente de clientes', '• Concorrência local intensa\n• Custos operacionais elevados\n• Dependência de fatores económicos externos'],
+      ['Oportunidades', 'Ameaças'],
+      ['• Expansão para novos segmentos de mercado\n• Parcerias com empresas locais\n• Inovação em serviços e tecnologias', '• Flutuações económicas\n• Mudanças nas preferências dos consumidores\n• Regulamentações governamentais']
+    ];
+
+    if (typeof doc.autoTable === 'function') {
+      doc.autoTable({
+        startY: yPosition + 10,
+        head: [],
+        body: swotData,
+        theme: 'grid',
+        styles: { fontSize: 9, cellPadding: 3 },
+        columnStyles: {
+          0: { cellWidth: 90 },
+          1: { cellWidth: 90 }
+        }
+      });
+    } else {
+      console.warn('autoTable plugin not available, skipping table');
+    }
+
+    // Footer
+    const pageHeight = doc.internal.pageSize.height;
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'italic');
+    doc.text('Este relatório foi gerado automaticamente pelo sistema de Consultoria Auto Premium.', 20, pageHeight - 20);
+    doc.text('Para mais informações, visite www.consultoriaautopremium.com', 20, pageHeight - 10);
+
+    doc.save('relatorio_recomendacao.pdf');
+    const t = translations[currentLanguage];
+    alert(t.reportExported);
+  } catch (error) {
+    console.error('Erro ao exportar relatório:', error);
+    alert('Erro ao exportar relatório. Verifique o console para mais detalhes.');
+  }
 }
 
 // Função para compartilhar recomendação
