@@ -40,12 +40,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Dados padrão
 let locaisConhecidos = {
-  'Porto Centro': { lat: 41.1579, lng: -8.6291, image: 'https://via.placeholder.com/800x400?text=Porto+Centro', description: 'Centro histórico do Porto, ideal para stands de luxo com alta visibilidade.', baseRent: 5000, locationMultiplier: 1.5 },
-  'Vila Nova de Gaia': { lat: 41.1333, lng: -8.6167, image: 'https://via.placeholder.com/800x400?text=Vila+Nova+de+Gaia', description: 'Subúrbio familiar com acesso fácil ao Porto, perfeito para famílias.', baseRent: 3000, locationMultiplier: 1.0 },
-  'Leça da Palmeira': { lat: 41.1917, lng: -8.7000, image: 'https://via.placeholder.com/800x400?text=Le%C3%A7a+da+Palmeira', description: 'Área costeira vibrante, atrativa para jovens e turismo.', baseRent: 3500, locationMultiplier: 1.2 },
-  'Gondomar': { lat: 41.1500, lng: -8.5333, image: 'https://via.placeholder.com/800x400?text=Gondomar', description: 'Área residencial acessível, ideal para famílias com orçamento limitado.', baseRent: 2500, locationMultiplier: 0.8 },
-  'Maia': { lat: 41.2333, lng: -8.6167, image: 'https://via.placeholder.com/800x400?text=Maia', description: 'Subúrbio moderno com boas infraestruturas familiares.', baseRent: 3200, locationMultiplier: 1.0 },
-  'Póvoa de Varzim': { lat: 41.3833, lng: -8.7667, image: 'https://via.placeholder.com/800x400?text=P%C3%B3voa+de+Varzim', description: 'Costa norte com praias e vida noturna, atrativa para jovens.', baseRent: 3800, locationMultiplier: 1.3 }
+  'Porto Centro': { lat: 41.1496, lng: -8.6110, image: 'https://via.placeholder.com/800x400?text=Porto+Centro', description: 'Centro histórico do Porto, ideal para stands de luxo com alta visibilidade.', baseRent: 5000, locationMultiplier: 1.5 },
+  'Vila Nova de Gaia': { lat: 41.1230, lng: -8.6128, image: 'https://via.placeholder.com/800x400?text=Vila+Nova+de+Gaia', description: 'Subúrbio familiar com acesso fácil ao Porto, perfeito para famílias.', baseRent: 3000, locationMultiplier: 1.0 },
+  'Leça da Palmeira': { lat: 41.1918, lng: -8.7003, image: 'https://via.placeholder.com/800x400?text=Le%C3%A7a+da+Palmeira', description: 'Área costeira vibrante, atrativa para jovens e turismo.', baseRent: 3500, locationMultiplier: 1.2 },
+  'Gondomar': { lat: 41.1396, lng: -8.5322, image: 'https://via.placeholder.com/800x400?text=Gondomar', description: 'Área residencial acessível, ideal para famílias com orçamento limitado.', baseRent: 2500, locationMultiplier: 0.8 },
+  'Maia': { lat: 41.2367, lng: -8.6199, image: 'https://via.placeholder.com/800x400?text=Maia', description: 'Subúrbio moderno com boas infraestruturas familiares.', baseRent: 3200, locationMultiplier: 1.0 },
+  'Póvoa de Varzim': { lat: 41.3768, lng: -8.7636, image: 'https://via.placeholder.com/800x400?text=P%C3%B3voa+de+Varzim', description: 'Costa norte com praias e vida noturna, atrativa para jovens.', baseRent: 3800, locationMultiplier: 1.3 }
 };
 
 let regrasRelacionadas = [
@@ -449,7 +449,7 @@ document.getElementById('thumbsDown').addEventListener('click', async function (
 // Event listeners para botões de ação (definidos uma vez)
 document.getElementById('exportBtn').addEventListener('click', function () {
   if (currentRecommendation && currentRespostas) {
-    exportarRelatorio(currentRecommendation, currentRespostas);
+    exportarRelatorio(currentRecommendation, currentRespostas, currentRecommendation.advancedFilters);
   } else {
     const t = translations[currentLanguage];
     alert(t.noRecommendationAvailable || 'Por favor, gere uma recomendação primeiro.');
@@ -663,6 +663,9 @@ document.getElementById('consultoriaForm').addEventListener('submit', async func
   currentRespostas = respostas;
   feedbackGiven = false;
 
+  // Attach advanced filters to current recommendation for export
+  currentRecommendation.advancedFilters = filtrosAvancados;
+
   // Remove campos vazios, para evitar nulos desnecessarios
   Object.keys(filtrosAvancados).forEach(key => {
     if (filtrosAvancados[key] === null || filtrosAvancados[key] === '' || (Array.isArray(filtrosAvancados[key]) && filtrosAvancados[key].length === 0)) {
@@ -738,7 +741,7 @@ function ajustarConfiança(local, positivo) {
 }
 
 // Função para exportar relatório
-function exportarRelatorio(recomendacao, criterios) {
+function exportarRelatorio(recomendacao, criterios, filtrosAvancados) {
   try {
     if (!window.jspdf) {
       throw new Error('jsPDF library not loaded');
@@ -746,83 +749,112 @@ function exportarRelatorio(recomendacao, criterios) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
 
-    // Header
-    doc.setFontSize(22);
+    // Cover Page
+    doc.setFontSize(24);
     doc.setFont('helvetica', 'bold');
-    doc.text('Consultoria Auto Premium', 20, 30);
+    doc.text('Consultoria Auto Premium', 105, 80, { align: 'center' });
 
-    doc.setFontSize(16);
+    doc.setFontSize(18);
     doc.setFont('helvetica', 'normal');
-    doc.text('Relatório de Recomendação Personalizada', 20, 40);
+    doc.text('Relatório de Recomendação Personalizada', 105, 100, { align: 'center' });
 
-    // Line separator
-    doc.setLineWidth(0.5);
-    doc.line(20, 45, 190, 45);
-
-    // Date
-    doc.setFontSize(10);
-    doc.text(`Data de Geração: ${new Date().toLocaleDateString('pt-PT')}`, 20, 55);
-
-    // Section 1: Recomendação Principal
     doc.setFontSize(14);
+    doc.text(`Local Recomendado: ${recomendacao.consequente}`, 105, 120, { align: 'center' });
+
+    doc.setFontSize(12);
+    doc.text(`Data de Geração: ${new Date().toLocaleDateString('pt-PT')}`, 105, 140, { align: 'center' });
+
+    doc.setFontSize(10);
+    doc.text('Sistema de Consultoria Inteligente para Locais de Stand Automóvel', 105, 160, { align: 'center' });
+
+    // Table of Contents
+    doc.addPage();
+    doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.text('1. Recomendação Principal', 20, 75);
+    doc.text('Índice', 20, 30);
 
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Local Recomendado: ${recomendacao.consequente}`, 20, 85);
-    doc.text(`Nível de Confiança: ${recomendacao.confidenceAjustada ? (recomendacao.confidenceAjustada * 100).toFixed(0) + '%' : 'N/A'}`, 20, 95);
+    doc.text('1. Resumo Executivo ..................................................... 3', 20, 50);
+    doc.text('2. Recomendação Principal ............................................. 4', 20, 60);
+    doc.text('3. Critérios Utilizados ................................................. 5', 20, 70);
+    doc.text('4. Detalhes do Local ................................................... 6', 20, 80);
+    doc.text('5. Custo Operacional Estimado ........................................ 7', 20, 90);
+    doc.text('6. Filtros Avançados Aplicados ....................................... 8', 20, 100);
+    doc.text('7. Análise SWOT ........................................................ 9', 20, 110);
+    doc.text('8. Conclusão e Recomendações ........................................ 10', 20, 120);
 
-    // Description with text wrapping
-    const descriptionLines = doc.splitTextToSize(`Descrição: ${recomendacao.description}`, 170);
-    doc.text(descriptionLines, 20, 105);
-
-    // Section 2: Critérios Utilizados
-    let yPosition = 105 + (descriptionLines.length * 5) + 10;
-    doc.setFontSize(14);
+    // Section 1: Resumo Executivo
+    doc.addPage();
+    doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.text('2. Critérios Utilizados', 20, yPosition);
+    doc.text('1. Resumo Executivo', 20, 30);
+
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    const resumoText = `Este relatório apresenta uma recomendação personalizada para a abertura de um stand automóvel no local ${recomendacao.consequente}, baseada nos critérios fornecidos pelo utilizador. A recomendação foi gerada utilizando algoritmos de mineração de dados Apriori, com um nível de confiança de ${recomendacao.confidenceAjustada ? (recomendacao.confidenceAjustada * 100).toFixed(0) + '%' : 'N/A'}. O custo operacional estimado mensal é de €${recomendacao.custoOperacional ? recomendacao.custoOperacional.total : 'N/A'}.`;
+    const resumoLines = doc.splitTextToSize(resumoText, 170);
+    doc.text(resumoLines, 20, 50);
+
+    // Section 2: Recomendação Principal
+    doc.addPage();
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('2. Recomendação Principal', 20, 30);
+
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Local Recomendado: ${recomendacao.consequente}`, 20, 50);
+    doc.text(`Nível de Confiança: ${recomendacao.confidenceAjustada ? (recomendacao.confidenceAjustada * 100).toFixed(0) + '%' : 'N/A'}`, 20, 60);
+
+    const descriptionLines = doc.splitTextToSize(`Descrição: ${recomendacao.description}`, 170);
+    doc.text(descriptionLines, 20, 80);
+
+    // Section 3: Critérios Utilizados
+    doc.addPage();
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('3. Critérios Utilizados', 20, 30);
 
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
     const criteriosText = `• Tipo de Gama: ${criterios[0] || 'N/A'}\n• Orçamento: ${criterios[1] || 'N/A'}\n• Tipo de Cliente: ${criterios[2] || 'N/A'}\n• Preferência de Localização: ${criterios[3] || 'N/A'}`;
     const criteriosLines = doc.splitTextToSize(criteriosText, 170);
-    doc.text(criteriosLines, 20, yPosition + 10);
+    doc.text(criteriosLines, 20, 50);
 
-    // Section 3: Detalhes do Local
-    yPosition += 10 + (criteriosLines.length * 5) + 10;
-    doc.setFontSize(14);
+    // Section 4: Detalhes do Local
+    doc.addPage();
+    doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.text('3. Detalhes do Local', 20, yPosition);
+    doc.text('4. Detalhes do Local', 20, 30);
 
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
     if (recomendacao.lat && recomendacao.lng) {
-      doc.text(`Coordenadas: ${recomendacao.lat}, ${recomendacao.lng}`, 20, yPosition + 10);
+      doc.text(`Coordenadas: ${recomendacao.lat}, ${recomendacao.lng}`, 20, 50);
     }
+    doc.text(`Localização: ${recomendacao.consequente}`, 20, 70);
 
-    // Section 4: Custo Operacional Estimado
-    yPosition += 30;
-    doc.setFontSize(14);
+    // Section 5: Custo Operacional Estimado
+    doc.addPage();
+    doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.text('4. Custo Operacional Estimado Mensal', 20, yPosition);
+    doc.text('5. Custo Operacional Estimado Mensal', 20, 30);
 
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
     if (recomendacao.custoOperacional) {
-      doc.text(`Total: €${recomendacao.custoOperacional.total}`, 20, yPosition + 10);
-      doc.text(`• Renda: €${recomendacao.custoOperacional.breakdown.rent}`, 20, yPosition + 20);
-      doc.text(`• Utilitários: €${recomendacao.custoOperacional.breakdown.utilities}`, 20, yPosition + 30);
-      doc.text(`• Staff: €${recomendacao.custoOperacional.breakdown.staff}`, 20, yPosition + 40);
-      doc.text(`• Manutenção: €${recomendacao.custoOperacional.breakdown.maintenance}`, 20, yPosition + 50);
-      doc.text(`• Marketing: €${recomendacao.custoOperacional.breakdown.marketing}`, 20, yPosition + 60);
-      
+      doc.text(`Total Estimado: €${recomendacao.custoOperacional.total}`, 20, 50);
+      doc.text(`• Renda: €${recomendacao.custoOperacional.breakdown.rent}`, 20, 70);
+      doc.text(`• Utilitários: €${recomendacao.custoOperacional.breakdown.utilities}`, 20, 80);
+      doc.text(`• Staff: €${recomendacao.custoOperacional.breakdown.staff}`, 20, 90);
+      doc.text(`• Manutenção: €${recomendacao.custoOperacional.breakdown.maintenance}`, 20, 100);
+      doc.text(`• Marketing: €${recomendacao.custoOperacional.breakdown.marketing}`, 20, 110);
+
       // Add calculation breakdown table
-      yPosition += 80;
       doc.setFontSize(10);
       doc.setFont('helvetica', 'bold');
-      doc.text('Detalhamento do Cálculo:', 20, yPosition);
-    
+      doc.text('Detalhamento do Cálculo:', 20, 130);
 
       // Calculate step-by-step values
       const localInfo = locaisConhecidos[recomendacao.consequente];
@@ -849,7 +881,7 @@ function exportarRelatorio(recomendacao, criterios) {
         ['3', 'Aplicar multiplicador de gama', `${step2.toFixed(0)} × ${(costMultipliers.gama[gama] || 1.0).toFixed(1)}`, step3.toFixed(0)],
         ['4', 'Aplicar multiplicador de orçamento', `${step3.toFixed(0)} × ${(costMultipliers.orcamento[orcamento] || 1.0).toFixed(1)}`, step4.toFixed(0)],
         ['5', 'Aplicar multiplicador de cliente', `${step4.toFixed(0)} × ${(costMultipliers.cliente[cliente] || 1.0).toFixed(1)}`, step5.toFixed(0)],
-        ['6', 'Aplicar multiplicador de localização', `${step5.toFixed(0)} × ${(costMultipliers.localizacao[localizacao] || 1.0).toFixed(1)}`, step6.toFixed(0)],
+        ['6', 'Aplicar multiplicador de preferência de localização', `${step5.toFixed(0)} × ${(costMultipliers.localizacao[localizacao] || 1.0).toFixed(1)}`, step6.toFixed(0)],
         ['7', 'Adicionar custos de utilitários', `${step6.toFixed(0)} + 500`, step7.toFixed(0)],
         ['8', 'Adicionar custos de staff', `${step7.toFixed(0)} + 2000`, step8.toFixed(0)],
         ['9', 'Adicionar custos de manutenção', `${step8.toFixed(0)} + 300`, step9.toFixed(0)],
@@ -859,7 +891,7 @@ function exportarRelatorio(recomendacao, criterios) {
 
       if (typeof doc.autoTable === 'function') {
         doc.autoTable({
-          startY: yPosition + 10,
+          startY: 140,
           head: [calculationData[0]],
           body: calculationData.slice(1),
           theme: 'grid',
@@ -871,32 +903,52 @@ function exportarRelatorio(recomendacao, criterios) {
             3: { cellWidth: 25 }
           }
         });
-        yPosition = doc.lastAutoTable.finalY + 20;
-      } else {
-        yPosition += 20;
       }
     } else {
-      doc.text('Não disponível', 20, yPosition + 10);
-      yPosition += 20;
+      doc.text('Não disponível', 20, 50);
     }
 
-    // Section 5: Análise SWOT
-    yPosition += 30;
-    doc.setFontSize(14);
+    // Section 6: Filtros Avançados
+    doc.addPage();
+    doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
-    doc.text('5. Análise SWOT', 20, yPosition);
+    doc.text('6. Filtros Avançados Aplicados', 20, 30);
 
-    // Criar tabela SWOT
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    let filtrosText = '';
+    if (filtrosAvancados && Object.keys(filtrosAvancados).length > 0) {
+      if (filtrosAvancados.orcamentoMin) filtrosText += `• Orçamento Mínimo: €${filtrosAvancados.orcamentoMin}\n`;
+      if (filtrosAvancados.orcamentoMax) filtrosText += `• Orçamento Máximo: €${filtrosAvancados.orcamentoMax}\n`;
+      if (filtrosAvancados.tiposCarro && filtrosAvancados.tiposCarro.length > 0) filtrosText += `• Tipos de Carro: ${filtrosAvancados.tiposCarro.join(', ')}\n`;
+      if (filtrosAvancados.faixaEtaria) filtrosText += `• Faixa Etária: ${filtrosAvancados.faixaEtaria}\n`;
+      if (filtrosAvancados.nivelRendimento) filtrosText += `• Nível de Rendimento: ${filtrosAvancados.nivelRendimento}\n`;
+    }
+    if (filtrosText) {
+      const filtrosLines = doc.splitTextToSize(filtrosText, 170);
+      doc.text(filtrosLines, 20, 50);
+    } else {
+      doc.text('Nenhum filtro avançado aplicado.', 20, 50);
+    }
+
+    // Section 7: Análise SWOT
+    doc.addPage();
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('7. Análise SWOT', 20, 30);
+
+    // Criar tabela SWOT específica para o local
+    const localInfo = locaisConhecidos[recomendacao.consequente];
     const swotData = [
       ['Forças', 'Fraquezas'],
-      ['• Localização estratégica no Grande Porto\n• Alta visibilidade e acessibilidade\n• Demanda consistente de clientes', '• Concorrência local intensa\n• Custos operacionais elevados\n• Dependência de fatores económicos externos'],
+      [`• ${localInfo ? localInfo.description : 'Localização estratégica'}\n• Alta visibilidade e acessibilidade\n• Demanda consistente de clientes`, '• Concorrência local intensa\n• Custos operacionais elevados\n• Dependência de fatores económicos externos'],
       ['Oportunidades', 'Ameaças'],
       ['• Expansão para novos segmentos de mercado\n• Parcerias com empresas locais\n• Inovação em serviços e tecnologias', '• Flutuações económicas\n• Mudanças nas preferências dos consumidores\n• Regulamentações governamentais']
     ];
 
     if (typeof doc.autoTable === 'function') {
       doc.autoTable({
-        startY: yPosition + 10,
+        startY: 50,
         head: [],
         body: swotData,
         theme: 'grid',
@@ -906,16 +958,30 @@ function exportarRelatorio(recomendacao, criterios) {
           1: { cellWidth: 90 }
         }
       });
-    } else {
-      console.warn('autoTable plugin not available, skipping table');
     }
 
-    // Footer
-    const pageHeight = doc.internal.pageSize.height;
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'italic');
-    doc.text('Este relatório foi gerado automaticamente pelo sistema de Consultoria Auto Premium.', 20, pageHeight - 20);
-    doc.text('Para mais informações, visite www.consultoriaautopremium.com', 20, pageHeight - 10);
+    // Section 8: Conclusão e Recomendações
+    doc.addPage();
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text('8. Conclusão e Recomendações', 20, 30);
+
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    const conclusaoText = `Com base na análise realizada, recomendamos a abertura do stand automóvel no local ${recomendacao.consequente}. Esta recomendação tem um nível de confiança de ${recomendacao.confidenceAjustada ? (recomendacao.confidenceAjustada * 100).toFixed(0) + '%' : 'N/A'} e considera todos os critérios fornecidos. Recomendamos consultar um especialista local para avaliação detalhada antes de tomar uma decisão final.`;
+    const conclusaoLines = doc.splitTextToSize(conclusaoText, 170);
+    doc.text(conclusaoLines, 20, 50);
+
+    // Footer on all pages
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'italic');
+      doc.text('Este relatório foi gerado automaticamente pelo sistema de Consultoria Auto Premium.', 20, doc.internal.pageSize.height - 20);
+      doc.text('Para mais informações, visite www.consultoriaautopremium.com', 20, doc.internal.pageSize.height - 10);
+      doc.text(`Página ${i} de ${pageCount}`, 180, doc.internal.pageSize.height - 10, { align: 'right' });
+    }
 
     doc.save('relatorio_recomendacao.pdf');
     const t = translations[currentLanguage];

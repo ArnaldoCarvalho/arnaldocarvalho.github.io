@@ -1,5 +1,5 @@
 // analytics.js
-import { collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+import { collection, getDocs, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 import { db } from '../firebase/firebase.js';
 import { translations, setLanguage, currentLanguage } from './translations.js';
 
@@ -25,11 +25,25 @@ class AnalyticsDashboard {
     }
   }
 
-  async getAnalyticsData() {
-    const historico = await this.fetchAnalyticsData();
+  // Set up real-time listener for analytics data
+  setupRealtimeUpdates() {
+    const q = query(collection(db, 'recommendations'), orderBy('data', 'desc'));
+    this.unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const historico = [];
+      querySnapshot.forEach((doc) => {
+        historico.push({ id: doc.id, ...doc.data() });
+      });
+      this.updateCharts(historico);
+    }, (error) => {
+      console.error('Error listening to analytics data:', error);
+    });
+  }
+
+  // Update charts with new data
+  async updateCharts(historico) {
     const locais = {};
     const criterios = {};
-    const feedbacks = { sim: 0, não: 0, nenhum: 0 };
+    const feedbacks = { positivo: 0, negativo: 0, neutro: 0 };
     const successRates = {};
     const timelineData = {};
 
@@ -42,15 +56,92 @@ class AnalyticsDashboard {
       criterios[criterioKey] = (criterios[criterioKey] || 0) + 1;
 
       // Count feedbacks
-      const feedback = (typeof item.feedback === 'string') ? item.feedback.toLowerCase() : 'nenhum';
+      console.log('Feedback value:', item.feedback, 'type:', typeof item.feedback);
+      let feedback = 'neutro';
+      if (typeof item.feedback === 'string') {
+        const fb = item.feedback.toLowerCase();
+        if (fb === 'sim' || fb === 'positivo' || fb === 'yes' || fb === 'true') feedback = 'positivo';
+        else if (fb === 'não' || fb === 'negativo' || fb === 'no' || fb === 'false') feedback = 'negativo';
+        else if (fb === 'nenhum' || fb === 'neutro' || fb === 'none' || fb === 'null') feedback = 'neutro';
+      } else if (typeof item.feedback === 'boolean') {
+        feedback = item.feedback ? 'positivo' : 'negativo';
+      } else if (typeof item.feedback === 'number') {
+        if (item.feedback === 1 || item.feedback > 0) feedback = 'positivo';
+        else if (item.feedback === -1 || item.feedback < 0) feedback = 'negativo';
+        else feedback = 'neutro';
+      } else if (item.feedback == null || item.feedback === undefined) {
+        feedback = 'neutro';
+      }
       feedbacks[feedback]++;
 
       // Calculate success rates per location
       if (!successRates[item.local]) {
-        successRates[item.local] = { total: 0, positive: 0, nenhum: 0 };
+        successRates[item.local] = { total: 0, positive: 0, neutro: 0 };
       }
       successRates[item.local].total++;
-      (feedback === 'sim') ? successRates[item.local].positive++ : (feedback === 'nenhum') ? successRates[item.local].nenhum++ : null;
+      (feedback === 'positivo') ? successRates[item.local].positive++ : (feedback === 'neutro') ? successRates[item.local].neutro++ : null;
+
+      const dateObj = item.data.toDate(); // Converte de Timestamp para JS Date
+      const date = dateObj.toISOString().split('T')[0];
+      timelineData[date] = (timelineData[date] || 0) + 1;
+    });
+
+    const data = { locais, criterios, feedbacks, successRates, timelineData, total: historico.length };
+
+    // Update total recommendations display
+    const totalElement = document.querySelector('.alert-info p strong');
+    if (totalElement) {
+      totalElement.textContent = data.total;
+    }
+
+    // Destroy existing charts and re-render
+    this.destroyCharts();
+    this.renderLocationsChart(data.locais);
+    this.renderCriteriaChart(data.criterios);
+    this.renderFeedbackChart(data.feedbacks);
+    this.renderTimelineChart(data.timelineData);
+  }
+
+  async getAnalyticsData() {
+    const historico = await this.fetchAnalyticsData();
+    const locais = {};
+    const criterios = {};
+    const feedbacks = { positivo: 0, negativo: 0, neutro: 0 };
+    const successRates = {};
+    const timelineData = {};
+
+    historico.forEach(item => {
+      // Count locations
+      locais[item.local] = (locais[item.local] || 0) + 1;
+
+      // Count criteria combinations
+      const criterioKey = item.criterios.join(' + ');
+      criterios[criterioKey] = (criterios[criterioKey] || 0) + 1;
+
+      // Count feedbacks
+      let feedback = 'neutro';
+      if (typeof item.feedback === 'string') {
+        const fb = item.feedback.toLowerCase();
+        if (fb === 'sim' || fb === 'positivo' || fb === 'yes' || fb === 'true') feedback = 'positivo';
+        else if (fb === 'não' || fb === 'negativo' || fb === 'no' || fb === 'false') feedback = 'negativo';
+        else if (fb === 'nenhum' || fb === 'neutro' || fb === 'none' || fb === 'null') feedback = 'neutro';
+      } else if (typeof item.feedback === 'boolean') {
+        feedback = item.feedback ? 'positivo' : 'negativo';
+      } else if (typeof item.feedback === 'number') {
+        if (item.feedback === 1 || item.feedback > 0) feedback = 'positivo';
+        else if (item.feedback === -1 || item.feedback < 0) feedback = 'negativo';
+        else feedback = 'neutro';
+      } else if (item.feedback == null || item.feedback === undefined) {
+        feedback = 'neutro';
+      }
+      feedbacks[feedback]++;
+
+      // Calculate success rates per location
+      if (!successRates[item.local]) {
+        successRates[item.local] = { total: 0, positive: 0, neutro: 0 };
+      }
+      successRates[item.local].total++;
+      (feedback === 'positivo') ? successRates[item.local].positive++ : (feedback === 'neutro') ? successRates[item.local].neutro++ : null;
 
       const dateObj = item.data.toDate(); // Converte de Timestamp para JS Date
       const date = dateObj.toISOString().split('T')[0];
@@ -76,23 +167,13 @@ class AnalyticsDashboard {
         </div>
       </div>
       <div class="row">
-        <div class="col-lg-6 col-md-12 mb-4">
+        <div class="col-lg-12 col-md-12 mb-4">
           <div class="card h-100">
             <div class="card-header bg-primary text-white">
               <h5 class="card-title mb-0"><i class="fas fa-map-marker-alt"></i> ${translations[currentLanguage].locationsChartTitle}</h5>
             </div>
             <div class="card-body">
               <canvas id="locationsChart" height="300"></canvas>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-6 col-md-12 mb-4">
-          <div class="card h-100">
-            <div class="card-header bg-success text-white">
-              <h5 class="card-title mb-0"><i class="fas fa-trophy"></i> ${translations[currentLanguage].successRateChartTitle}</h5>
-            </div>
-            <div class="card-body">
-              <canvas id="successRateChart" height="300"></canvas>
             </div>
           </div>
         </div>
@@ -204,7 +285,14 @@ class AnalyticsDashboard {
 
     const ctx = document.getElementById('successRateChart');
     const labels = Object.keys(successRates);
-    const rates = labels.map(local => (successRates[local].positive / (successRates[local].total-successRates[local].nenhum)) * 100);
+    if (labels.length === 0) {
+      ctx.parentNode.innerHTML = '<p>No data available for success rates.</p>';
+      return;
+    }
+    const rates = labels.map(local => {
+      const denominator = successRates[local].total - successRates[local].neutro;
+      return denominator > 0 ? (successRates[local].positive / denominator) * 100 : 0;
+    });
 
     const colors = [
       'rgba(25, 135, 84, 0.8)',
@@ -245,7 +333,7 @@ class AnalyticsDashboard {
             bodyColor: 'white',
             callbacks: {
               label: function(context) {
-                const total = (successRates[context.label].total - successRates[context.label].nenhum);
+                const total = (successRates[context.label].total - successRates[context.label].neutro);
                 const positive = successRates[context.label].positive;
                 return [
                   `${translations[currentLanguage].rate}: ${context.parsed.toFixed(1)}%`,
@@ -334,13 +422,19 @@ class AnalyticsDashboard {
   renderFeedbackChart(feedbacks) {
     const ctx = document.getElementById('feedbackChart');
 
+    const totalFeedback = feedbacks.positivo + feedbacks.negativo + feedbacks.neutro;
+    if (totalFeedback === 0) {
+      ctx.parentNode.innerHTML = '<p>No feedback data available.</p>';
+      return;
+    }
+
     this.charts.feedback = new Chart(ctx, {
       type: 'pie',
       data: {
-        labels: [`${translations[currentLanguage].positive}`, `${translations[currentLanguage].negative}`, `${translations[currentLanguage].none}`],
+        labels: [`${translations[currentLanguage].positive}`, `${translations[currentLanguage].negative}`, `${translations[currentLanguage].neutral}`],
         datasets: [{
           label: 'Feedback',
-          data: [feedbacks.sim, feedbacks.não, feedbacks.nenhum],
+          data: [feedbacks.positivo, feedbacks.negativo, feedbacks.neutro],
           backgroundColor: [
             'rgba(25, 135, 84, 0.8)',
             'rgba(220, 53, 69, 0.8)',
@@ -372,7 +466,7 @@ class AnalyticsDashboard {
             bodyColor: 'white',
             callbacks: {
               label: function(context) {
-                const total = feedbacks.sim + feedbacks.não + feedbacks.nenhum;
+                const total = feedbacks.positivo + feedbacks.negativo + feedbacks.neutro;
                 const percentage = ((context.parsed / total) * 100).toFixed(1);
                 return `${context.label}: ${context.parsed} (${percentage}%)`;
               }
@@ -484,5 +578,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // Render dashboard if container exists
   if (document.getElementById('analyticsContainer')) {
     analytics.renderDashboard();
+    analytics.setupRealtimeUpdates();
   }
 });

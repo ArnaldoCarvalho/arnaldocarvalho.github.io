@@ -81,7 +81,7 @@ export const translations = {
     frequency: "Frequência",
     positive: "Positivo",
     negative: "Negativo",
-    none: "Nenhum",
+    neutral: "Neutro",
     cumulativeTotal: "Total Acumulado:",
     accumulatedRecommendations: "Recomendações Acumuladas",
     contact: "Entre em Contacto",
