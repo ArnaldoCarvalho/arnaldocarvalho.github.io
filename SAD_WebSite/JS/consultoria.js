@@ -4,7 +4,7 @@ import { db, auth } from '../firebase/firebase.js';
 
 import { translations, setLanguage, currentLanguage } from './translations.js';
 import { gerarRecomendacao } from './apriori.js';
-import { getAllTransactions, saveTransaction } from '../firebase/firestore.js';
+import { getAllTransactions, saveTransaction, saveCustomModel, getCustomModels } from '../firebase/firestore.js';
 
 let currentRecommendation = null;
 let currentRecommendationId = null; // guarda id recomendacao
@@ -333,18 +333,34 @@ document.getElementById('gama').addEventListener('change', function () {
 });
 
 // Function to populate modelo select
-function populateModeloSelect(gama) {
+async function populateModeloSelect(gama) {
   const modeloSelect = document.getElementById('modelo');
   modeloSelect.innerHTML = '<option value="">Selecione</option>';
 
-  if (modelosPorGama[gama]) {
-    modelosPorGama[gama].forEach(modelo => {
-      const option = document.createElement('option');
-      option.value = modelo;
-      option.textContent = modelo;
-      modeloSelect.appendChild(option);
+  // Load custom models from Firebase
+  let customModels = {};
+  try {
+    customModels = await getCustomModels();
+  } catch (error) {
+    console.error('Erro ao carregar modelos personalizados:', error);
+  }
+
+  // Merge default models with custom models
+  const allModels = [...(modelosPorGama[gama] || [])];
+  if (customModels[gama]) {
+    customModels[gama].forEach(model => {
+      if (!allModels.includes(model)) {
+        allModels.push(model);
+      }
     });
   }
+
+  allModels.forEach(modelo => {
+    const option = document.createElement('option');
+    option.value = modelo;
+    option.textContent = modelo;
+    modeloSelect.appendChild(option);
+  });
 
   // Always add the custom option
   const customOption = document.createElement('option');
@@ -455,6 +471,26 @@ document.getElementById('directionsBtn').addEventListener('click', function () {
 document.getElementById('consultoriaForm').addEventListener('submit', async function (e) {
   e.preventDefault();
 
+  const localEspecifico = document.getElementById('localEspecifico').value.trim();
+  const errorDiv = document.getElementById('localEspecificoError');
+
+  // Check if localEspecifico is empty
+  if (!localEspecifico) {
+    if (!errorDiv) {
+      const newErrorDiv = document.createElement('div');
+      newErrorDiv.id = 'localEspecificoError';
+      newErrorDiv.className = 'text-danger mt-1';
+      newErrorDiv.textContent = translations[currentLanguage].pleaseAddItemToList;
+      document.getElementById('localEspecifico').parentNode.appendChild(newErrorDiv);
+    }
+    document.getElementById('localEspecifico').focus();
+    return; // Prevent form submission
+  } else {
+    if (errorDiv) {
+      errorDiv.remove();
+    }
+  }
+
   // Show loading indicator
   const loadingIndicator = document.createElement('div');
   loadingIndicator.id = 'loadingIndicator';
@@ -470,12 +506,19 @@ document.getElementById('consultoriaForm').addEventListener('submit', async func
   const orcamento = document.getElementById('orcamento').value;
   const cliente = document.getElementById('cliente').value;
   const localizacao = document.getElementById('localizacao').value;
-  const localEspecifico = document.getElementById('localEspecifico').value.trim();
 
   // Get modelo value
   let modelo = document.getElementById('modelo').value;
   if (modelo === 'custom') {
     modelo = document.getElementById('customModelo').value.trim();
+    // Save the new custom model to Firebase
+    if (modelo) {
+      try {
+        await saveCustomModel(gama, modelo);
+      } catch (error) {
+        console.error('Erro ao salvar modelo personalizado:', error);
+      }
+    }
   }
 
   // Filtros avançados

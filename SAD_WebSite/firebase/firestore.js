@@ -81,3 +81,28 @@ export async function getAssociationRules() {
     return null;
   }
 }
+
+// Custom models functions
+export async function saveCustomModel(gama, model) {
+  await addDoc(collection(db, "customModels"), {
+    gama,
+    model,
+    data: serverTimestamp()
+  });
+}
+
+export async function getCustomModels() {
+  const q = query(collection(db, "customModels"), orderBy("data", "desc"));
+  const snapshot = await getDocs(q);
+  const models = {};
+  snapshot.docs.forEach(doc => {
+    const data = doc.data();
+    if (!models[data.gama]) {
+      models[data.gama] = [];
+    }
+    if (!models[data.gama].includes(data.model)) {
+      models[data.gama].push(data.model);
+    }
+  });
+  return models;
+}
