@@ -23,7 +23,7 @@ async function register(event) {
         const userCred = await createUserWithEmailAndPassword(auth, email.value, password.value);
         console.log("Usuário registado:", userCred.user.email);
         alert("Registo realizado com sucesso! Faça login.");
-        window.location.href = './login.html';
+        window.location.href = './';
     } catch (err) {
         console.error(err.message);
 

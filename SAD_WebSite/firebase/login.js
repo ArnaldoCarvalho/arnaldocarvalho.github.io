@@ -6,7 +6,7 @@ import {
 const email = document.getElementById("email");
 const password = document.getElementById("password");
 
-// 🔑 LOGIN
+
 async function login(event) {
     event.preventDefault(); // impede o reload da página
     const errorMessage = document.getElementById("errorMessage");

@@ -1153,19 +1153,6 @@ function updateLanguageDisplay(lang) {
 // Initialize language display
 updateLanguageDisplay(currentLanguage);
 
-document.getElementById('btnLogout').addEventListener('click', async () => {
-  try {
-    await signOut(auth);
-    console.log('Usuário deslogado com sucesso.');
-    // Redireciona para a página de login
-    window.location.replace('./login.html');
-  } catch (error) {
-    console.error('Erro ao deslogar:', error);
-    alert('Erro ao tentar sair. Tente novamente.');
-  }
-});
-
-
 let scrollTimer;
 
 window.addEventListener("scroll", function () {

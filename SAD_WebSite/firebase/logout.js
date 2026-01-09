@@ -6,7 +6,7 @@ async function logout() {
   try {
     await signOut(auth);
     console.log("Logout realizado");
-    window.location.replace('./login.html');
+    window.location.replace('./');
   } catch (err) {
     console.error(err.message);
   }

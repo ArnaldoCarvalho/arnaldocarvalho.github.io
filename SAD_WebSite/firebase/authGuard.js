@@ -6,6 +6,6 @@ onAuthStateChanged(auth, (user) => {
   if (user) {
     window.location.replace('./consultoria.html');
   } else {
-    window.location.replace('./login.html');
+    window.location.replace('./');
   }
 });
